@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>DevOps on Thomas Aumaitre</title>
+    <link>https://tomtom94.github.io/categories/devops/</link>
+    <description>Recent content in DevOps on Thomas Aumaitre</description>
+    <generator>Hugo -- 0.143.0</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 03 Apr 2024 12:07:07 +0100</lastBuildDate>
+    <atom:link href="https://tomtom94.github.io/categories/devops/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Running a Kubernetes Cluster on Ubuntu 24.04 and VirtualBox</title>
+      <link>https://tomtom94.github.io/posts/running-a-kubernetes-cluster-on-ubuntu-24.04-and-virtualbox/</link>
+      <pubDate>Wed, 03 Apr 2024 12:07:07 +0100</pubDate>
+      <guid>https://tomtom94.github.io/posts/running-a-kubernetes-cluster-on-ubuntu-24.04-and-virtualbox/</guid>
+      <description>&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents&lt;/h1&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#install-docker&#34;&gt;Install Docker&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#install-kubernetes&#34;&gt;Install Kubernetes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#generate-token-for-future-nodes&#34;&gt;Generate Token For Future Nodes&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;In a previous post, I created the adminbox Ubuntu VM on VirtualBox.&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;server&lt;/th&gt;
+          &lt;th&gt;ip addr&lt;/th&gt;
+          &lt;th&gt;comment&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;adminbox&lt;/td&gt;
+          &lt;td&gt;10.0.2.10&lt;/td&gt;
+          &lt;td&gt;Jump box from host with SSH access to all on the Nat network&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;In this post will be using the same setup to build a Kubernetes cluster and deploy an nginx container. I have created a further 3 VMs also connected to the KubeNatNetwork. Note: these only have one network adapter.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
