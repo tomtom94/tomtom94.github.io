@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Virtualbox on Thomas Aumaitre</title>
-    <link>http://localhost:1313/tags/virtualbox/</link>
+    <link>https://tomtom94.github.io/tags/virtualbox/</link>
     <description>Recent content in Virtualbox on Thomas Aumaitre</description>
     <generator>Hugo -- 0.143.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 03 Feb 2025 12:07:07 +0100</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/virtualbox/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 03 Feb 2024 12:07:07 +0100</lastBuildDate>
+    <atom:link href="https://tomtom94.github.io/tags/virtualbox/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Install multiple Ubuntu Servers 24.04 LTS on a NAT Network with VirtualBox 7.1</title>
-      <link>http://localhost:1313/posts/install-multiple-ubuntu-servers-24.04-lts-on-a-nat-network-with-virtualbox-7.1/</link>
-      <pubDate>Mon, 03 Feb 2025 12:07:07 +0100</pubDate>
-      <guid>http://localhost:1313/posts/install-multiple-ubuntu-servers-24.04-lts-on-a-nat-network-with-virtualbox-7.1/</guid>
+      <link>https://tomtom94.github.io/posts/install-multiple-ubuntu-servers-24.04-lts-on-a-nat-network-with-virtualbox-7.1/</link>
+      <pubDate>Sat, 03 Feb 2024 12:07:07 +0100</pubDate>
+      <guid>https://tomtom94.github.io/posts/install-multiple-ubuntu-servers-24.04-lts-on-a-nat-network-with-virtualbox-7.1/</guid>
       <description>&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of contents&lt;/h1&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;#install-virtualbox-71&#34;&gt;Install VirtualBox 7.1&lt;/a&gt;&lt;/li&gt;

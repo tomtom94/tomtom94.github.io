@@ -6,7 +6,32 @@
     <description>Recent content in Posts on Thomas Aumaitre</description>
     <generator>Hugo -- 0.143.0</generator>
     <language>en-us</language>
-    <lastBuildDate></lastBuildDate>
+    <lastBuildDate>Sat, 03 Feb 2024 12:07:07 +0100</lastBuildDate>
     <atom:link href="https://tomtom94.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Install multiple Ubuntu Servers 24.04 LTS on a NAT Network with VirtualBox 7.1</title>
+      <link>https://tomtom94.github.io/posts/install-multiple-ubuntu-servers-24.04-lts-on-a-nat-network-with-virtualbox-7.1/</link>
+      <pubDate>Sat, 03 Feb 2024 12:07:07 +0100</pubDate>
+      <guid>https://tomtom94.github.io/posts/install-multiple-ubuntu-servers-24.04-lts-on-a-nat-network-with-virtualbox-7.1/</guid>
+      <description>&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of contents&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#install-virtualbox-71&#34;&gt;Install VirtualBox 7.1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#configure-virtualbox&#34;&gt;Configure VirtualBox&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#install-ubuntu&#34;&gt;Install Ubuntu&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#update-ubuntu&#34;&gt;Update Ubuntu&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#set-static-ip&#34;&gt;Set Static IP&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#update-the-hosts-file&#34;&gt;Update the hosts File&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#generate-a-ssh-key-pair&#34;&gt;Generate a SSH Key Pair&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#summary&#34;&gt;Summary&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I will be using Ubuntu 24.04 LTS servers running on a Linux host with VirtualBox 7.1. This lab environment is designed to be used for any of the following:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;General Linux sysadmin&lt;/li&gt;
+&lt;li&gt;Firewall management&lt;/li&gt;
+&lt;li&gt;Kubernetes cluster&lt;/li&gt;
+&lt;li&gt;Terraform VirtualBox Provider&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This post will cover of the following:&lt;/p&gt;</description>
+    </item>
   </channel>
 </rss>
