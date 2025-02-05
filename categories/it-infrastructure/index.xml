@@ -2,41 +2,36 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>IT Infrastructure on Thomas Aumaitre</title>
-    <link>https://tomtom94.github.io/categories/it-infrastructure/</link>
+    <link>http://localhost:1313/categories/it-infrastructure/</link>
     <description>Recent content in IT Infrastructure on Thomas Aumaitre</description>
     <generator>Hugo -- 0.143.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 03 Apr 2024 12:07:07 +0100</lastBuildDate>
-    <atom:link href="https://tomtom94.github.io/categories/it-infrastructure/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 03 Feb 2025 12:07:07 +0100</lastBuildDate>
+    <atom:link href="http://localhost:1313/categories/it-infrastructure/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Running a Kubernetes Cluster on Ubuntu 24.04 and VirtualBox</title>
-      <link>https://tomtom94.github.io/posts/running-a-kubernetes-cluster-on-ubuntu-24.04-and-virtualbox/</link>
-      <pubDate>Wed, 03 Apr 2024 12:07:07 +0100</pubDate>
-      <guid>https://tomtom94.github.io/posts/running-a-kubernetes-cluster-on-ubuntu-24.04-and-virtualbox/</guid>
-      <description>&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of Contents&lt;/h1&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;a href=&#34;#install-docker&#34;&gt;Install Docker&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#install-kubernetes&#34;&gt;Install Kubernetes&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#generate-token-for-future-nodes&#34;&gt;Generate Token For Future Nodes&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;In a previous post, I created the adminbox Ubuntu VM on VirtualBox.&lt;/p&gt;
-&lt;table&gt;
-  &lt;thead&gt;
-      &lt;tr&gt;
-          &lt;th&gt;server&lt;/th&gt;
-          &lt;th&gt;ip addr&lt;/th&gt;
-          &lt;th&gt;comment&lt;/th&gt;
-      &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-      &lt;tr&gt;
-          &lt;td&gt;adminbox&lt;/td&gt;
-          &lt;td&gt;10.0.2.10&lt;/td&gt;
-          &lt;td&gt;Jump box from host with SSH access to all on the Nat network&lt;/td&gt;
-      &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;In this post will be using the same setup to build a Kubernetes cluster and deploy an nginx container. I have created a further 3 VMs also connected to the KubeNatNetwork. Note: these only have one network adapter.&lt;/p&gt;</description>
+      <title>Install multiple Ubuntu Servers 24.04 LTS on a NAT Network with VirtualBox 7.1</title>
+      <link>http://localhost:1313/posts/install-multiple-ubuntu-servers-24.04-lts-on-a-nat-network-with-virtualbox-7.1/</link>
+      <pubDate>Mon, 03 Feb 2025 12:07:07 +0100</pubDate>
+      <guid>http://localhost:1313/posts/install-multiple-ubuntu-servers-24.04-lts-on-a-nat-network-with-virtualbox-7.1/</guid>
+      <description>&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of contents&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#install-virtualbox-71&#34;&gt;Install VirtualBox 7.1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#configure-virtualbox&#34;&gt;Configure VirtualBox&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#install-ubuntu&#34;&gt;Install Ubuntu&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#update-ubuntu&#34;&gt;Update Ubuntu&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#set-static-ip&#34;&gt;Set Static IP&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#update-the-hosts-file&#34;&gt;Update the hosts File&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#generate-a-ssh-key-pair&#34;&gt;Generate a SSH Key Pair&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#summary&#34;&gt;Summary&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I will be using Ubuntu 24.04 LTS servers running on a Linux host with VirtualBox 7.1. This lab environment is designed to be used for any of the following:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;General Linux sysadmin&lt;/li&gt;
+&lt;li&gt;Firewall management&lt;/li&gt;
+&lt;li&gt;Kubernetes cluster&lt;/li&gt;
+&lt;li&gt;Terraform VirtualBox Provider&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This post will cover of the following:&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
