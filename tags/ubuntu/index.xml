@@ -20,8 +20,8 @@
 &lt;li&gt;&lt;a href=&#34;#install-ubuntu&#34;&gt;Install Ubuntu&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#update-ubuntu&#34;&gt;Update Ubuntu&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#set-static-ip&#34;&gt;Set Static IP&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;#update-the-hosts-file&#34;&gt;Update the hosts File&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#generate-a-ssh-key-pair&#34;&gt;Generate a SSH Key Pair&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#connect-with-openssh-from-you-local-environment&#34;&gt;Connect with OpenSSH from you local environment&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#summary&#34;&gt;Summary&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;I will be using Ubuntu 24.04 LTS servers running on a Linux host with VirtualBox 7.1. This lab environment is designed to be used for any of the following:&lt;/p&gt;
