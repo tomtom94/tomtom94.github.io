@@ -28,8 +28,7 @@
 &lt;ul&gt;
 &lt;li&gt;General Linux sysadmin&lt;/li&gt;
 &lt;li&gt;Firewall management&lt;/li&gt;
-&lt;li&gt;Kubernetes cluster&lt;/li&gt;
-&lt;li&gt;Terraform VirtualBox Provider&lt;/li&gt;
+&lt;li&gt;Kubernetes cluster with Metallb load balancer&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;This post will cover of the following:&lt;/p&gt;</description>
     </item>
