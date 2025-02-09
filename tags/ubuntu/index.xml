@@ -24,13 +24,58 @@
 &lt;li&gt;&lt;a href=&#34;#connect-with-openssh-from-you-local-environment&#34;&gt;Connect with OpenSSH from you local environment&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;#summary&#34;&gt;Summary&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;I will be using Ubuntu 24.04 LTS servers running on a Linux host with VirtualBox 7.1. This lab environment is designed to be used for any of the following:&lt;/p&gt;
+&lt;p&gt;I will be using Ubuntu 24.04 LTS servers running on a Linux host with VirtualBox 7.1 to make a lab environment on my computer.&lt;/p&gt;
+&lt;p&gt;This post will cover of the following:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;General Linux sysadmin&lt;/li&gt;
-&lt;li&gt;Firewall management&lt;/li&gt;
-&lt;li&gt;Kubernetes cluster with Metallb load balancer&lt;/li&gt;
+&lt;li&gt;Installing &amp;amp; configuring VirtualBox&lt;/li&gt;
+&lt;li&gt;Installing &amp;amp; configuring a NAT Network between &lt;code&gt;ctrlplane&lt;/code&gt;, &lt;code&gt;node1&lt;/code&gt; &amp;amp; &lt;code&gt;node2&lt;/code&gt; servers
+&lt;ul&gt;
+&lt;li&gt;NAT Network address: 10.0.2.0/24&lt;/li&gt;
+&lt;li&gt;NAT Network default gateway: 10.0.2.10&lt;/li&gt;
+&lt;li&gt;3 virtual machines&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;This post will cover of the following:&lt;/p&gt;</description>
+&lt;/li&gt;
+&lt;li&gt;Setting also a Bridged adapter to the host for &lt;code&gt;ctrlplane&lt;/code&gt;, &lt;code&gt;node1&lt;/code&gt; &amp;amp; &lt;code&gt;node2&lt;/code&gt;, this is why my next post will be about Firewall management for each of them&lt;/li&gt;
+&lt;/ul&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;server&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;ip addr given&lt;/th&gt;
+          &lt;th&gt;ram&lt;/th&gt;
+          &lt;th&gt;vcpu&lt;/th&gt;
+          &lt;th&gt;storage&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;comment&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;ctrlplane&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;10.0.2.20&lt;/td&gt;
+          &lt;td&gt;2GB&lt;/td&gt;
+          &lt;td&gt;2&lt;/td&gt;
+          &lt;td&gt;25GB&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Kubernetes Control Plane server&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;node1&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;10.0.2.21&lt;/td&gt;
+          &lt;td&gt;2GB&lt;/td&gt;
+          &lt;td&gt;2&lt;/td&gt;
+          &lt;td&gt;25GB&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Kubernetes worker node 1&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;node2&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;10.0.2.22&lt;/td&gt;
+          &lt;td&gt;2GB&lt;/td&gt;
+          &lt;td&gt;2&lt;/td&gt;
+          &lt;td&gt;25GB&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Kubernetes worker node 2&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;In case your computer doesn&amp;rsquo;t have more than 16GB in RAM, just don&amp;rsquo;t create the &lt;code&gt;node2&lt;/code&gt; machine.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

@@ -173,15 +173,16 @@
 </article>
 
 <article class="post-entry"> 
-<figure class="entry-cover"><img loading="lazy" src="https://tomtom94.github.io/post1/virtualbox-ubuntu.png" alt="Post image">
+<figure class="entry-cover"><img loading="lazy" src="https://tomtom94.github.io/post1/virtualbox-ubuntu.png" alt="Cover image">
 </figure>
   <header class="entry-header">
     <h2 class="entry-hint-parent">Install multiple Ubuntu Servers 24.04 LTS on a NAT Network with VirtualBox 7.1
     </h2>
   </header>
   <div class="entry-content">
-    <p>Table of contents Install VirtualBox 7.1 Configure VirtualBox Install Ubuntu Update Ubuntu Set Static IP Generate a SSH Key Pair Connect with OpenSSH from you local environment Summary I will be using Ubuntu 24.04 LTS servers running on a Linux host with VirtualBox 7.1. This lab environment is designed to be used for any of the following:
-General Linux sysadmin Firewall management Kubernetes cluster with Metallb load balancer This post will cover of the following:
+    <p>Table of contents Install VirtualBox 7.1 Configure VirtualBox Install Ubuntu Update Ubuntu Set Static IP Generate a SSH Key Pair Connect with OpenSSH from you local environment Summary I will be using Ubuntu 24.04 LTS servers running on a Linux host with VirtualBox 7.1 to make a lab environment on my computer.
+This post will cover of the following:
+Installing &amp; configuring VirtualBox Installing &amp; configuring a NAT Network between ctrlplane, node1 &amp; node2 servers NAT Network address: 10.0.2.0/24 NAT Network default gateway: 10.0.2.10 3 virtual machines Setting also a Bridged adapter to the host for ctrlplane, node1 &amp; node2, this is why my next post will be about Firewall management for each of them server ip addr given ram vcpu storage comment ctrlplane 10.0.2.20 2GB 2 25GB Kubernetes Control Plane server node1 10.0.2.21 2GB 2 25GB Kubernetes worker node 1 node2 10.0.2.22 2GB 2 25GB Kubernetes worker node 2 In case your computer doesn’t have more than 16GB in RAM, just don’t create the node2 machine.
 ...</p>
   </div>
   <footer class="entry-footer"><span title='2024-02-03 12:07:07 +0100 CET'>February 3, 2024</span>&nbsp;·&nbsp;7 min</footer>

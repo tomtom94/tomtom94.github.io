@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Iptables on Thomas Aumaitre</title>
+    <link>http://localhost:1313/tags/iptables/</link>
+    <description>Recent content in Iptables on Thomas Aumaitre</description>
+    <generator>Hugo -- 0.143.0</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 22 Feb 2024 09:23:10 +0100</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/iptables/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Install a firewall and only allow SSH, HTTP and HTTPS ports</title>
+      <link>http://localhost:1313/posts/install-a-firewall-and-only-allow-ssh-http-and-https-ports/</link>
+      <pubDate>Thu, 22 Feb 2024 09:23:10 +0100</pubDate>
+      <guid>http://localhost:1313/posts/install-a-firewall-and-only-allow-ssh-http-and-https-ports/</guid>
+      <description>&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of contents&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#install-virtualbox-71&#34;&gt;Install VirtualBox 7.1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#configure-virtualbox&#34;&gt;Configure VirtualBox&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#install-ubuntu&#34;&gt;Install Ubuntu&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#update-ubuntu&#34;&gt;Update Ubuntu&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#set-static-ip&#34;&gt;Set Static IP&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#generate-a-ssh-key-pair&#34;&gt;Generate a SSH Key Pair&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#connect-with-openssh-from-you-local-environment&#34;&gt;Connect with OpenSSH from you local environment&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#summary&#34;&gt;Summary&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;do-not-allow-password-based-ssh-login-keys-only&#34;&gt;Do not allow password-based SSH login (keys only)&lt;/h2&gt;
+&lt;p&gt;First, make sure you are actually logging in to the server using keys and not via a password, otherwise, this will lock you out. Many hosting providers support uploading a public key and automatically set up key-based root login on new machines for you.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
