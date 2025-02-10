@@ -6,8 +6,18 @@
     <description>Recent content on Thomas Aumaitre</description>
     <generator>Hugo -- 0.143.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 03 Feb 2024 12:07:07 +0100</lastBuildDate>
+    <lastBuildDate>Sun, 24 Mar 2024 09:39:17 +0100</lastBuildDate>
     <atom:link href="https://tomtom94.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Install Kubernetes 1.32 and Calico 3.29 for networking on multiple instances</title>
+      <link>https://tomtom94.github.io/posts/install-kubernetes-1.32-and-calico-3.29-for-networking-on-multiple-instances/</link>
+      <pubDate>Sun, 24 Mar 2024 09:39:17 +0100</pubDate>
+      <guid>https://tomtom94.github.io/posts/install-kubernetes-1.32-and-calico-3.29-for-networking-on-multiple-instances/</guid>
+      <description>&lt;h2 id=&#34;security-before-installation&#34;&gt;Security before installation&lt;/h2&gt;
+&lt;p&gt;It&amp;rsquo;s best practices to run only Kubernetes on a dedicated server. Running any side applications or tuning applications that are used by the cluster may cause an impact in the Kubernetes itself and isn&amp;rsquo;t recommended/supported.&lt;/p&gt;
+&lt;p&gt;Kubernetes uses the whole &lt;code&gt;iptables&lt;/code&gt; firewall, so any changes you make on the &lt;code&gt;iptables&lt;/code&gt; can impact kubernetes and also be ruined by kubernetes.&lt;/p&gt;
+&lt;p&gt;At the end of this post we will visualize what actions Kubernetes is doing in the &lt;code&gt;iptables&lt;/code&gt;, this will allow us to realize how sophisticated is its algorithm.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Install multiple Ubuntu Servers 24.04 LTS on a NAT Network with VirtualBox 7.1</title>
       <link>https://tomtom94.github.io/posts/install-multiple-ubuntu-servers-24.04-lts-on-a-nat-network-with-virtualbox-7.1/</link>

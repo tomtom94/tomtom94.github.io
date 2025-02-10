@@ -13,14 +13,10 @@
       <link>https://tomtom94.github.io/posts/install-kubernetes-1.32-and-calico-3.29-for-networking-on-multiple-instances/</link>
       <pubDate>Sun, 24 Mar 2024 09:39:17 +0100</pubDate>
       <guid>https://tomtom94.github.io/posts/install-kubernetes-1.32-and-calico-3.29-for-networking-on-multiple-instances/</guid>
-      <description>&lt;h2 id=&#34;disable-swap-and-load-kernel-modules&#34;&gt;Disable Swap and Load Kernel Modules&lt;/h2&gt;
-&lt;p&gt;It is highly recommended to disable swap space on your Ubuntu instances so that Kubernetes cluster works smoothly. Run beneath command on each instance to disable swap space.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo swapoff -a
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo sed -i &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/ swap / s/^\(.*\)$/#\1/g&amp;#39;&lt;/span&gt; /etc/fstab
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now, load the following kernel modules using modprobe command.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo modprobe overlay
-&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$ sudo modprobe br_netfilter
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;For the permanent loading of these modules, create the file with following content.&lt;/p&gt;</description>
+      <description>&lt;h2 id=&#34;security-before-installation&#34;&gt;Security before installation&lt;/h2&gt;
+&lt;p&gt;It&amp;rsquo;s best practices to run only Kubernetes on a dedicated server. Running any side applications or tuning applications that are used by the cluster may cause an impact in the Kubernetes itself and isn&amp;rsquo;t recommended/supported.&lt;/p&gt;
+&lt;p&gt;Kubernetes uses the whole &lt;code&gt;iptables&lt;/code&gt; firewall, so any changes you make on the &lt;code&gt;iptables&lt;/code&gt; can impact kubernetes and also be ruined by kubernetes.&lt;/p&gt;
+&lt;p&gt;At the end of this post we will visualize what actions Kubernetes is doing in the &lt;code&gt;iptables&lt;/code&gt;, this will allow us to realize how sophisticated is its algorithm.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

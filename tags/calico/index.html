@@ -140,12 +140,12 @@
     </h2>
   </header>
   <div class="entry-content">
-    <p>Disable Swap and Load Kernel Modules It is highly recommended to disable swap space on your Ubuntu instances so that Kubernetes cluster works smoothly. Run beneath command on each instance to disable swap space.
-$ sudo swapoff -a $ sudo sed -i &#39;/ swap / s/^\(.*\)$/#\1/g&#39; /etc/fstab Now, load the following kernel modules using modprobe command.
-$ sudo modprobe overlay $ sudo modprobe br_netfilter For the permanent loading of these modules, create the file with following content.
+    <p>Security before installation It’s best practices to run only Kubernetes on a dedicated server. Running any side applications or tuning applications that are used by the cluster may cause an impact in the Kubernetes itself and isn’t recommended/supported.
+Kubernetes uses the whole iptables firewall, so any changes you make on the iptables can impact kubernetes and also be ruined by kubernetes.
+At the end of this post we will visualize what actions Kubernetes is doing in the iptables, this will allow us to realize how sophisticated is its algorithm.
 ...</p>
   </div>
-  <footer class="entry-footer"><span title='2024-03-24 09:39:17 +0100 CET'>March 24, 2024</span>&nbsp;·&nbsp;5 min</footer>
+  <footer class="entry-footer"><span title='2024-03-24 09:39:17 +0100 CET'>March 24, 2024</span>&nbsp;·&nbsp;15 min</footer>
   <a class="entry-link" aria-label="post link to Install Kubernetes 1.32 and Calico 3.29 for networking on multiple instances" href="https://tomtom94.github.io/posts/install-kubernetes-1.32-and-calico-3.29-for-networking-on-multiple-instances/"></a>
 </article>
     </main>

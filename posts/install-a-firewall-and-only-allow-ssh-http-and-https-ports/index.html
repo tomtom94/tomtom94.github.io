@@ -142,12 +142,12 @@ First, make sure you are actually logging in to the server using keys and not vi
         </svg>
       </span>
     </h1>
-    <div class="post-meta"><span title='2024-02-22 09:23:10 +0100 CET'>February 22, 2024</span>&nbsp;·&nbsp;6 min
+    <div class="post-meta"><span title='2024-02-22 09:23:10 +0100 CET'>February 22, 2024</span>&nbsp;·&nbsp;7 min
 
 </div>
   </header> 
 <figure class="entry-cover"><a href="http://localhost:1313/post2/cover.png" target="_blank"
-            rel="noopener noreferrer"><img loading="eager" src="http://localhost:1313/post2/cover.png" alt="Post image"></a>
+            rel="noopener noreferrer"><img loading="eager" src="http://localhost:1313/post2/cover.png" alt="Cover image"></a>
         <p>Install a firewall and only allow SSH, HTTP and HTTPS ports</p>
 </figure>
   <div class="post-content"><h1 id="table-of-contents">Table of contents<a hidden class="anchor" aria-hidden="true" href="#table-of-contents">#</a></h1>
@@ -302,6 +302,31 @@ num      pkts      bytes target     prot opt in     out     source              
 <p>iptables -N KUBE-PROTECTION</p>
 <p>iptables -A KUBE-PROTECTION -p tcp -m tcp &ndash;dport 22 -j ACCEPT</p>
 <p>iptables -A INPUT -j KUBE-PROTECTION</p>
+<pre><code>Chain INPUT (policy ACCEPT 27557 packets, 9485722 bytes)
+    pkts      bytes target     prot opt in     out     source               destination
+17127  4449758 cali-INPUT  0    --  *      *       0.0.0.0/0            0.0.0.0/0            /* cali:Cz_u1IQiXIMmKD4c */
+    203    12278 KUBE-PROXY-FIREWALL  0    --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate NEW /* kubernetes load balancer firewall */
+21353  6568139 KUBE-NODEPORTS  0    --  *      *       0.0.0.0/0            0.0.0.0/0            /* kubernetes health check service ports */
+    203    12278 KUBE-EXTERNAL-SERVICES  0    --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate NEW /* kubernetes externally-visible service portals */
+27557  9485722 KUBE-FIREWALL  0    --  *      *       0.0.0.0/0            0.0.0.0/0
+
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+    pkts      bytes target     prot opt in     out     source               destination
+    151     7396 cali-FORWARD  0    --  *      *       0.0.0.0/0            0.0.0.0/0            /* cali:wUHhoiAYhphO9Mso */
+    152     7120 KUBE-PROXY-FIREWALL  0    --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate NEW /* kubernetes load balancer firewall */
+    152     7120 KUBE-FORWARD  0    --  *      *       0.0.0.0/0            0.0.0.0/0            /* kubernetes forwarding rules */
+    152     7120 KUBE-SERVICES  0    --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate NEW /* kubernetes service portals */
+    152     7120 KUBE-EXTERNAL-SERVICES  0    --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate NEW /* kubernetes externally-visible service portals */
+    148     6820 ACCEPT     0    --  *      *       0.0.0.0/0            0.0.0.0/0            /* cali:S93hcgKJrXEqnTfs */ /* Policy explicitly accepted packet. */ mark match 0x10000/0x10000
+    0        0 MARK       0    --  *      *       0.0.0.0/0            0.0.0.0/0            /* cali:mp77cMpurHhyjLrM */ MARK or 0x10000
+
+Chain OUTPUT (policy ACCEPT 27950 packets, 9673023 bytes)
+    pkts      bytes target     prot opt in     out     source               destination
+17238  4597613 cali-OUTPUT  0    --  *      *       0.0.0.0/0            0.0.0.0/0            /* cali:tVnHkvAo15HuiPy0 */
+    227    13794 KUBE-PROXY-FIREWALL  0    --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate NEW /* kubernetes load balancer firewall */
+    227    13794 KUBE-SERVICES  0    --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate NEW /* kubernetes service portals */
+27950  9673023 KUBE-FIREWALL  0    --  *      *       0.0.0.0/0            0.0.0.0/0
+</code></pre>
 
 
   </div>
@@ -313,6 +338,11 @@ num      pkts      bytes target     prot opt in     out     source              
       <li><a href="http://localhost:1313/tags/iptables/">Iptables</a></li>
     </ul>
 <nav class="paginav">
+  <a class="prev" href="http://localhost:1313/posts/install-kubernetes-1.32-and-calico-3.29-for-networking-on-multiple-instances/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Install Kubernetes 1.32 and Calico 3.29 for networking on multiple instances</span>
+  </a>
   <a class="next" href="http://localhost:1313/posts/install-multiple-ubuntu-servers-24.04-lts-on-a-nat-network-with-virtualbox-7.1/">
     <span class="title">Next »</span>
     <br>
