@@ -7,10 +7,24 @@
 <meta name="robots" content="index, follow">
 <title>Install Kubernetes 1.32 and Calico 3.29 for networking on multiple instances | Thomas Aumaitre</title>
 <meta name="keywords" content="kubernetes, calico">
-<meta name="description" content="Security before installation
-It&rsquo;s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.
-Kubernetes uses the whole iptables firewall, so any changes you make on the iptables can impact kubernetes and also be ruined by kubernetes.
-At the end of this post, we will visualize the actions Kubernetes takes in the iptables, allowing us to understand how sophisticated its algorithm is.">
+<meta name="description" content="Table of contents
+
+Security before installation
+Disable Swap and Load Kernel Modules
+Install and Configure Containerd
+Add Kubernetes Package Repository
+Install Kubernetes Components (Kubeadm, kubelet &amp; kubectl)
+Initialize Kubernetes Cluster
+Install Helm
+Install Calico Network Add-on Plugin
+Install Ingress-Nginx
+Install Load Balancer
+Test Kubernetes Installation
+Finally security
+Summary
+
+Security before installation
+It&rsquo;s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.">
 <meta name="author" content="">
 <link rel="canonical" href="https://tomtom94.github.io/posts/install-kubernetes-1.32-and-calico-3.29-for-networking-on-multiple-instances/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.45e028aa8ce0961349adf411b013ee39406be2c0bc80d4ea3fc04555f7f4611a.css" integrity="sha256-ReAoqozglhNJrfQRsBPuOUBr4sC8gNTqP8BFVff0YRo=" rel="preload stylesheet" as="style">
@@ -61,9 +75,7 @@ At the end of this post, we will visualize the actions Kubernetes takes in the i
 </noscript><meta property="og:url" content="https://tomtom94.github.io/posts/install-kubernetes-1.32-and-calico-3.29-for-networking-on-multiple-instances/">
   <meta property="og:site_name" content="Thomas Aumaitre">
   <meta property="og:title" content="Install Kubernetes 1.32 and Calico 3.29 for networking on multiple instances">
-  <meta property="og:description" content="Security before installation It’s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.
-Kubernetes uses the whole iptables firewall, so any changes you make on the iptables can impact kubernetes and also be ruined by kubernetes.
-At the end of this post, we will visualize the actions Kubernetes takes in the iptables, allowing us to understand how sophisticated its algorithm is.">
+  <meta property="og:description" content="Table of contents Security before installation Disable Swap and Load Kernel Modules Install and Configure Containerd Add Kubernetes Package Repository Install Kubernetes Components (Kubeadm, kubelet &amp; kubectl) Initialize Kubernetes Cluster Install Helm Install Calico Network Add-on Plugin Install Ingress-Nginx Install Load Balancer Test Kubernetes Installation Finally security Summary Security before installation It’s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.">
   <meta property="og:locale" content="en-us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -75,10 +87,24 @@ At the end of this post, we will visualize the actions Kubernetes takes in the i
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://tomtom94.github.io/post3/cover.png">
 <meta name="twitter:title" content="Install Kubernetes 1.32 and Calico 3.29 for networking on multiple instances">
-<meta name="twitter:description" content="Security before installation
-It&rsquo;s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.
-Kubernetes uses the whole iptables firewall, so any changes you make on the iptables can impact kubernetes and also be ruined by kubernetes.
-At the end of this post, we will visualize the actions Kubernetes takes in the iptables, allowing us to understand how sophisticated its algorithm is.">
+<meta name="twitter:description" content="Table of contents
+
+Security before installation
+Disable Swap and Load Kernel Modules
+Install and Configure Containerd
+Add Kubernetes Package Repository
+Install Kubernetes Components (Kubeadm, kubelet &amp; kubectl)
+Initialize Kubernetes Cluster
+Install Helm
+Install Calico Network Add-on Plugin
+Install Ingress-Nginx
+Install Load Balancer
+Test Kubernetes Installation
+Finally security
+Summary
+
+Security before installation
+It&rsquo;s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.">
 
 
 <script type="application/ld+json">
@@ -107,12 +133,12 @@ At the end of this post, we will visualize the actions Kubernetes takes in the i
   "@type": "BlogPosting",
   "headline": "Install Kubernetes 1.32 and Calico 3.29 for networking on multiple instances",
   "name": "Install Kubernetes 1.32 and Calico 3.29 for networking on multiple instances",
-  "description": "Security before installation It\u0026rsquo;s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.\nKubernetes uses the whole iptables firewall, so any changes you make on the iptables can impact kubernetes and also be ruined by kubernetes.\nAt the end of this post, we will visualize the actions Kubernetes takes in the iptables, allowing us to understand how sophisticated its algorithm is.\n",
+  "description": "Table of contents Security before installation Disable Swap and Load Kernel Modules Install and Configure Containerd Add Kubernetes Package Repository Install Kubernetes Components (Kubeadm, kubelet \u0026amp; kubectl) Initialize Kubernetes Cluster Install Helm Install Calico Network Add-on Plugin Install Ingress-Nginx Install Load Balancer Test Kubernetes Installation Finally security Summary Security before installation It\u0026rsquo;s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.\n",
   "keywords": [
     "kubernetes", "calico"
   ],
-  "articleBody": "Security before installation It’s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.\nKubernetes uses the whole iptables firewall, so any changes you make on the iptables can impact kubernetes and also be ruined by kubernetes.\nAt the end of this post, we will visualize the actions Kubernetes takes in the iptables, allowing us to understand how sophisticated its algorithm is.\nYou can now run the command to checkup what is your firewall configuration currently for the ctrlplane machine:\niptables -xvnL cat /etc/iptables/rules.v4 cat /etc/iptables/rules.v6 You’ll see that the CLI iptables has not been installed yet, but we don’t need to worry, as kube-proxy will automatically install iptables-persistent for us. Allowing us to play with iptables via Kubernetes itself and also Calico for its networking solution between k8s pods.\nCalico is a networking and security solution that enables Kubernetes workloads to communicate seamlessly and securely. Mainly its goal is to allow us to write k8s charts of kind GlobalNetworkPolicy and/or NetworkPolicy to play with communication between pods, even though Kubernetes is also able to do that, since quite sometimes ago, with its powerful service types ClusterIP, NodePort, and LoadBalancer.\nDisable Swap and Load Kernel Modules It is highly recommended to disable swap space on your Ubuntu instances so that Kubernetes cluster works smoothly. Run beneath command on each instance to disable swap space.\nsudo swapoff -a sudo sed -i 's/\\/swap/# \\/swap/1' /etc/fstab Now, load the following kernel modules using the modprobe command.\nsudo modprobe overlay sudo modprobe br_netfilter To ensure these modules load permanently, create a file with the following content.\nsudo tee /etc/modules-load.d/k8s.conf \u003c",
-  "wordCount" : "3075",
+  "articleBody": "Table of contents Security before installation Disable Swap and Load Kernel Modules Install and Configure Containerd Add Kubernetes Package Repository Install Kubernetes Components (Kubeadm, kubelet \u0026 kubectl) Initialize Kubernetes Cluster Install Helm Install Calico Network Add-on Plugin Install Ingress-Nginx Install Load Balancer Test Kubernetes Installation Finally security Summary Security before installation It’s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.\nKubernetes uses the whole iptables firewall, so any changes you make on the iptables can impact kubernetes and also be ruined by kubernetes.\nAt the end of this post, I will visualize the actions Kubernetes takes in the iptables, allowing us to understand how sophisticated its algorithm is.\nYou can now run the command to checkup what is your firewall configuration currently for the ctrlplane machine:\niptables -xvnL cat /etc/iptables/rules.v4 cat /etc/iptables/rules.v6 You’ll see that the CLI iptables has not been installed yet, but I don’t need to worry, as kube-proxy will automatically install iptables-persistent for us. Allowing us to play with iptables via Kubernetes itself and also Calico for its networking solution between k8s pods.\nCalico is a networking and security solution that enables Kubernetes workloads to communicate seamlessly and securely. Mainly its goal is to allow us to write k8s charts of kind GlobalNetworkPolicy and/or NetworkPolicy to play with communication between pods, even though Kubernetes is also able to do that, since quite sometimes ago, with its powerful service types ClusterIP, NodePort, and LoadBalancer.\nDisable Swap and Load Kernel Modules It is highly recommended to disable swap space on your Ubuntu instances so that Kubernetes cluster works smoothly. Run beneath command on each instance to disable swap space.\nsudo swapoff -a sudo sed -i 's/\\/swap/# \\/swap/1' /etc/fstab Now, load the following kernel modules using the modprobe command.\nsudo modprobe overlay sudo modprobe br_netfilter To ensure these modules load permanently, create a file with the following content.\nsudo tee /etc/modules-load.d/k8s.conf \u003c",
+  "wordCount" : "3179",
   "inLanguage": "en",
   "image":"https://tomtom94.github.io/post3/cover.png","datePublished": "2024-03-24T09:39:17+01:00",
   "dateModified": "2024-03-24T09:39:17+01:00",
@@ -206,15 +232,31 @@ At the end of this post, we will visualize the actions Kubernetes takes in the i
             rel="noopener noreferrer"><img loading="eager" src="https://tomtom94.github.io/post3/cover.png" alt="Cover image"></a>
         <p>Kubernetes and Calico</p>
 </figure>
-  <div class="post-content"><h2 id="security-before-installation">Security before installation<a hidden class="anchor" aria-hidden="true" href="#security-before-installation">#</a></h2>
+  <div class="post-content"><h1 id="table-of-contents">Table of contents<a hidden class="anchor" aria-hidden="true" href="#table-of-contents">#</a></h1>
+<ul>
+<li><a href="#security-before-installation">Security before installation</a></li>
+<li><a href="#disable-swap-and-load-kernel-modules">Disable Swap and Load Kernel Modules</a></li>
+<li><a href="#install-and-configure-containerd">Install and Configure Containerd</a></li>
+<li><a href="#add-kubernetes-package-repository">Add Kubernetes Package Repository</a></li>
+<li><a href="#install-kubernetes-components-kubeadm-kubelet-kubectl">Install Kubernetes Components (Kubeadm, kubelet &amp; kubectl)</a></li>
+<li><a href="#initialize-kubernetes-cluster">Initialize Kubernetes Cluster</a></li>
+<li><a href="#install-helm">Install Helm</a></li>
+<li><a href="#install-calico-network-add-on-plugin">Install Calico Network Add-on Plugin</a></li>
+<li><a href="#install-ingress-nginx">Install Ingress-Nginx</a></li>
+<li><a href="#install-load-balancer">Install Load Balancer</a></li>
+<li><a href="#test-kubernetes-installation">Test Kubernetes Installation</a></li>
+<li><a href="#finally-security">Finally security</a></li>
+<li><a href="#summary">Summary</a></li>
+</ul>
+<h2 id="security-before-installation">Security before installation<a hidden class="anchor" aria-hidden="true" href="#security-before-installation">#</a></h2>
 <p>It&rsquo;s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.</p>
 <p>Kubernetes uses the whole <code>iptables</code> firewall, so any changes you make on the <code>iptables</code> can impact kubernetes and also be ruined by kubernetes.</p>
-<p>At the end of this post, we will visualize the actions Kubernetes takes in the iptables, allowing us to understand how sophisticated its algorithm is.</p>
+<p>At the end of this post, I will visualize the actions Kubernetes takes in the iptables, allowing us to understand how sophisticated its algorithm is.</p>
 <p>You can now run the command to checkup what is your firewall configuration currently for the <code>ctrlplane</code> machine:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>iptables -xvnL
 </span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>cat /etc/iptables/rules.v4
 </span></span><span style="display:flex;"><span>cat /etc/iptables/rules.v6
-</span></span></code></pre></div><p>You’ll see that the CLI <code>iptables</code> has not been installed yet, but we don’t need to worry, as <code>kube-proxy</code> will automatically install <code>iptables-persistent</code> for us. Allowing us to play with <code>iptables</code> via Kubernetes itself and also Calico for its networking solution between k8s pods.</p>
+</span></span></code></pre></div><p>You’ll see that the CLI <code>iptables</code> has not been installed yet, but I don’t need to worry, as <code>kube-proxy</code> will automatically install <code>iptables-persistent</code> for us. Allowing us to play with <code>iptables</code> via Kubernetes itself and also Calico for its networking solution between k8s pods.</p>
 <p>Calico is a networking and security solution that enables Kubernetes workloads to communicate seamlessly and securely. Mainly its goal is to allow us to write k8s charts of kind <code>GlobalNetworkPolicy</code> and/or <code>NetworkPolicy</code> to play with communication between pods, even though Kubernetes is also able to do that, since quite sometimes ago, with its powerful service types <code>ClusterIP</code>, <code>NodePort</code>, and <code>LoadBalancer</code>.</p>
 <h2 id="disable-swap-and-load-kernel-modules">Disable Swap and Load Kernel Modules<a hidden class="anchor" aria-hidden="true" href="#disable-swap-and-load-kernel-modules">#</a></h2>
 <p>It is highly recommended to disable swap space on your Ubuntu instances so that Kubernetes cluster works smoothly. Run beneath command on each instance to disable swap space.</p>
@@ -262,7 +304,7 @@ At the end of this post, we will visualize the actions Kubernetes takes in the i
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo apt update
 </span></span><span style="display:flex;"><span>sudo apt install kubelet kubeadm kubectl -y
 </span></span></code></pre></div><h2 id="initialize-kubernetes-cluster">Initialize Kubernetes Cluster<a hidden class="anchor" aria-hidden="true" href="#initialize-kubernetes-cluster">#</a></h2>
-<p>As all the prerequisites are met, now we are good to start the installation of Kubernetes on Ubuntu 24.04.</p>
+<p>As all the prerequisites are met, now I am good to start the installation of Kubernetes on Ubuntu 24.04.</p>
 <p>Run following Kubeadm command from the master node only to initialize the Kubernetes cluster.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo kubeadm init --control-plane-endpoint<span style="color:#f92672">=</span>ctrlplane
 </span></span></code></pre></div><pre><code>This command will pull the required images for your Kubernetes cluster. Once this command is executed successfully, we will get the output something like below:
@@ -351,7 +393,7 @@ Then you can join any number of worker nodes by running the following on each as
 kubeadm join node3:6443 --token sdhe3d.glgn3kfm7ooqd2pg \
     --discovery-token-ca-cert-hash sha256:5e87c3f261bf5aa9ae134de39030e49a0f6f933cec26fcc9cbf635f05aa3effe
 </code></pre>
-<p>In the output above, we will get a series of commands like how to start interacting with your Kubernetes cluster and command to join any worker node to join this cluster.</p>
+<p>In the output above, I get a series of commands like how to start interacting with your Kubernetes cluster and command to join any worker node to join this cluster.</p>
 <p>On the master node, run following set of commands.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>mkdir -p $HOME/.kube
 </span></span><span style="display:flex;"><span>sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -362,7 +404,7 @@ kubeadm join node3:6443 --token sdhe3d.glgn3kfm7ooqd2pg \
 </span></span></code></pre></div><p>Do this command line as many nodes as you run, however it&rsquo;s optional.</p>
 <p>Now head back to the master node and run kubectl get nodes command to verify the status of worker nodes.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>kubectl get nodes
-</span></span></code></pre></div><p>Output confirms that worker nodes have joined the cluster, but the status is NotReady. So, in order to make status Ready, we need to install network add-ons plugin like calico on this cluster.</p>
+</span></span></code></pre></div><p>Output confirms that worker nodes have joined the cluster, but the status is NotReady. So, in order to make status Ready, I need to install network add-ons plugin like calico on this cluster.</p>
 <h2 id="install-helm">Install Helm<a hidden class="anchor" aria-hidden="true" href="#install-helm">#</a></h2>
 <p>Helm is a CLI which plays the role of package manager for Kubernetes, it makes charts ready to go:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg &gt; /dev/null
@@ -389,10 +431,10 @@ kubeadm join node3:6443 --token sdhe3d.glgn3kfm7ooqd2pg \
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>  --repo https://kubernetes.github.io/ingress-nginx <span style="color:#ae81ff">\
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>  --namespace ingress-nginx --create-namespace
 </span></span></code></pre></div><h2 id="install-load-balancer">Install Load Balancer<a hidden class="anchor" aria-hidden="true" href="#install-load-balancer">#</a></h2>
-<p>As perfectly said in the Ingress-Nginx documentation, for bare-metal considerations we have <a href="https://metallb.universe.tf/installation/">to install metallb</a></p>
+<p>As perfectly said in the Ingress-Nginx documentation, for bare-metal considerations I have <a href="https://metallb.universe.tf/installation/">to install metallb</a></p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>helm repo add metallb https://metallb.github.io/metallb
 </span></span><span style="display:flex;"><span>helm install metallb metallb/metallb --namespace metallb-system --create-namespace
-</span></span></code></pre></div><p>We are gonna create a specific config for Kubernetes to set up metallb</p>
+</span></span></code></pre></div><p>I am gonna create a specific config for Kubernetes to set up metallb</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>vi ~/metallb-charts.yaml
 </span></span></code></pre></div><pre><code>apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
@@ -412,14 +454,14 @@ spec:
   ipAddressPools:
   - default
 </code></pre>
-<p>We assume <code>192.168.0.31</code> &amp; <code>192.168.0.32</code> are respectivly the ip address of you <code>ctrlplane</code> &amp; <code>node1</code> machines.</p>
+<p>I assume <code>192.168.0.31</code> &amp; <code>192.168.0.32</code> are respectivly the ip address of you <code>ctrlplane</code> &amp; <code>node1</code> machines.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>kubectl apply -f ~/metallb-charts.yaml
-</span></span></code></pre></div><p>You can now is we have an <code>EXTERNAL-IP</code> in our <code>nginx-ingress</code> service</p>
+</span></span></code></pre></div><p>I can now see I have an <code>EXTERNAL-IP</code> in my <code>nginx-ingress</code> service</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>kubectl get services --all-namespaces
 </span></span></code></pre></div><h2 id="test-kubernetes-installation">Test Kubernetes Installation<a hidden class="anchor" aria-hidden="true" href="#test-kubernetes-installation">#</a></h2>
-<p>We are gonna create an Nginx app saying in a html page Welcome&hellip;</p>
+<p>I am gonna create an Nginx app saying in a html page.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>helm create demo-app
-</span></span></code></pre></div><p>This is gonna create a folder where you are as name <code>demo-app</code>, we are gonna do some change on a particular file in it.</p>
+</span></span></code></pre></div><p>This is gonna create a folder <code>demo-app</code>, I am gonna do some changes on a particular file in it.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>vi ~/demo-app/values.yaml
 </span></span></code></pre></div><pre tabindex="0"><code class="language-vi" data-lang="vi"># Default values for demo-app.
 # This is a YAML-formatted file.
@@ -559,7 +601,7 @@ affinity: {}
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-</code></pre><p>Save and quit the vi. Then we are gonna deploy this <code>demo-app</code> into our Kubernetes cluster with the Helm CLI which is gonna compile the files to make beautiful k8s charts and finally run it with the classical <code>kubectl</code> CLI.</p>
+</code></pre><p>Save and quit the vi. Then I am gonna deploy this <code>demo-app</code> into our Kubernetes cluster with the Helm CLI which is gonna compile the files to make beautiful k8s charts and finally run it with the classical <code>kubectl</code> CLI.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>helm upgrade --install ~/demo-app
 </span></span></code></pre></div><p><code>upgrade --install</code> means upgrade it, if not present just install it.</p>
 <p>Check out the pods have been correctly created, or updated:</p>
@@ -568,10 +610,15 @@ affinity: {}
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>kubectl get services --all-namespaces
 </span></span></code></pre></div><p>Finally check out all what&rsquo;s running in your cluster:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>kubectl get all -A
-</span></span></code></pre></div><p>Usually we use the <code>watch</code> CLI on linux which refreshes every 5 seconds the command:</p>
+</span></span></code></pre></div><p>Usually I use the <code>watch</code> CLI on linux which refreshes every 5 seconds the command:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>watch kubectl get all -A
-</span></span></code></pre></div><h2 id="finally-security">Finally security<a hidden class="anchor" aria-hidden="true" href="#finally-security">#</a></h2>
-<p>We can now check out what&rsquo;s been doing the machine with its firewall</p>
+</span></span></code></pre></div><p>On your host you can do</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>curl --header <span style="color:#e6db74">&#39;Host: demo-app.local&#39;</span> http://192.168.0.31
+</span></span></code></pre></div><p>However I can add it in my <code>/etc/hosts</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>echo -e <span style="color:#e6db74">&#34;\n192.168.0.31   demo-app.local&#34;</span> | sudo tee -a /etc/hosts
+</span></span></code></pre></div><p>Please be careful new Macbook pro like I am using blocks on your computer the home made <code>/etc/hosts</code> as local security, you need to give privilege for Google Chrome to finally open the link <a href="http://demo-app.local">http://demo-app.local</a>.</p>
+<h2 id="finally-security">Finally security<a hidden class="anchor" aria-hidden="true" href="#finally-security">#</a></h2>
+<p>I can now check out what&rsquo;s been doing the machine with its firewall</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>iptables -xvnL
 </span></span></code></pre></div><pre><code>Chain INPUT (policy ACCEPT 27557 packets, 9485722 bytes)
     pkts      bytes target     prot opt in     out     source               destination
@@ -598,15 +645,15 @@ Chain OUTPUT (policy ACCEPT 27950 packets, 9673023 bytes)
     227    13794 KUBE-SERVICES  0    --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate NEW /* kubernetes service portals */
 27950  9673023 KUBE-FIREWALL  0    --  *      *       0.0.0.0/0            0.0.0.0/0
 </code></pre>
-<p>We can see the 3 main iptables chain <code>INPUT</code>, <code>OUPUT</code> &amp; <code>FORWARD</code> are all in policy <code>ACCEPT</code>. No one can change it because it&rsquo;s managed by <code>kube-proxy</code>, which is perfectly fine if you don&rsquo;t have other stuff running except Kubernetes itself. Machine reboot would overwrite any changes made, if ever you attempt to add stuff in the <code>iptables</code>.</p>
-<p>However we can make sure we are just logging in to the server in SSH using keys and not via a password.</p>
+<p>I can see the 3 main iptables chain <code>INPUT</code>, <code>OUPUT</code> &amp; <code>FORWARD</code> are all in policy <code>ACCEPT</code>. No one can change it because it&rsquo;s managed by <code>kube-proxy</code>, which is perfectly fine if you don&rsquo;t have other stuff running except Kubernetes itself. Machine reboot would overwrite any changes made, if ever you attempt to add stuff in the <code>iptables</code>.</p>
+<p>However I can make sure I am just logging in to the server in SSH using keys and not via a password.</p>
 <p>Edit <code>/etc/ssh/sshd_config</code> and find <code>PasswordAuthentication</code>. Make sure it’s uncommented and set to no.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo vi /etc/ssh/sshd_config
 </span></span></code></pre></div><p>Save and exit the text editor, then type the following to apply the changes:</p>
 <p>If you made any changes, restart sshd:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo systemctl restart ssh.service
 </span></span></code></pre></div><p><a href="https://ultahost.com/knowledge-base/ssh-key-vs-password-based-authentication/">SSH key-based authentication</a> indeed offers a secure approach to authentication by eliminating the need to transmit passwords across the network. This enhanced security is achieved through the client-side retention of the private key, ensuring that it is never sent over the network. Consequently, SSH key-based authentication mitigates the risks associated with password interception.</p>
-<p>We already logged into this machine via SSH thanks to the <code>PasswordAuthentication</code> but now we will not ever authorize it.</p>
+<p>I already logged into this machine via SSH thanks to the <code>PasswordAuthentication</code> but now I will not ever authorize it.</p>
 <h2 id="summary">Summary<a hidden class="anchor" aria-hidden="true" href="#summary">#</a></h2>
 <p>We&rsquo;ve been installing and configuring a cluster Kubernetes with Calico for networking, deploying a demo app with the nginx welcome message using the Ingress Nginx. See how security would be about when running a Kubernetes cluster on a self-installed machine and a cloud provider, it&rsquo;s the same. All is managed thanks to the CLI <code>kubectl</code> and charts you send to it. This command line <code>kubectl</code> will definitly be your best friend.</p>
 
