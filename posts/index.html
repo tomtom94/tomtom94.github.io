@@ -155,9 +155,9 @@
     </h2>
   </header>
   <div class="entry-content">
-    <p>Security before installation It’s best practices to run only Kubernetes on a dedicated server. Running any side applications or tuning applications that are used by the cluster may cause an impact in the Kubernetes itself and isn’t recommended/supported.
+    <p>Security before installation It’s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.
 Kubernetes uses the whole iptables firewall, so any changes you make on the iptables can impact kubernetes and also be ruined by kubernetes.
-At the end of this post we will visualize what actions Kubernetes is doing in the iptables, this will allow us to realize how sophisticated is its algorithm.
+At the end of this post, we will visualize the actions Kubernetes takes in the iptables, allowing us to understand how sophisticated its algorithm is.
 ...</p>
   </div>
   <footer class="entry-footer"><span title='2024-03-24 09:39:17 +0100 CET'>March 24, 2024</span>&nbsp;·&nbsp;15 min</footer>
@@ -173,7 +173,7 @@ At the end of this post we will visualize what actions Kubernetes is doing in th
   </header>
   <div class="entry-content">
     <p>Table of contents Install VirtualBox 7.1 Configure VirtualBox Install Ubuntu Update Ubuntu Set Static IP Generate a SSH Key Pair Connect with OpenSSH from you local environment Summary I will be using Ubuntu 24.04 LTS servers running on a Linux host with VirtualBox 7.1 to make a lab environment on my computer.
-This post will cover of the following:
+This post will cover the following:
 Installing &amp; configuring VirtualBox Installing &amp; configuring a NAT Network between ctrlplane, node1 &amp; node2 servers NAT Network address: 10.0.2.0/24 NAT Network default gateway: 10.0.2.10 3 virtual machines Setting also a Bridged adapter to the host for ctrlplane, node1 &amp; node2, this is why my next post will be about Firewall management for each of them server ip addr given ram vcpu storage comment ctrlplane 10.0.2.20 2GB 2 25GB Kubernetes Control Plane server node1 10.0.2.21 2GB 2 25GB Kubernetes worker node 1 node2 10.0.2.22 2GB 2 25GB Kubernetes worker node 2 In case your computer doesn’t have more than 16GB in RAM, just don’t create the node2 machine.
 ...</p>
   </div>

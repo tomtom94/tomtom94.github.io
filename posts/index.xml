@@ -14,9 +14,9 @@
       <pubDate>Sun, 24 Mar 2024 09:39:17 +0100</pubDate>
       <guid>https://tomtom94.github.io/posts/install-kubernetes-1.32-and-calico-3.29-for-networking-on-multiple-instances/</guid>
       <description>&lt;h2 id=&#34;security-before-installation&#34;&gt;Security before installation&lt;/h2&gt;
-&lt;p&gt;It&amp;rsquo;s best practices to run only Kubernetes on a dedicated server. Running any side applications or tuning applications that are used by the cluster may cause an impact in the Kubernetes itself and isn&amp;rsquo;t recommended/supported.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s best practices to run only Kubernetes on a dedicated server. Running side applications or tuning applications that are used by the cluster may impact Kubernetes itself and is not recommended or supported.&lt;/p&gt;
 &lt;p&gt;Kubernetes uses the whole &lt;code&gt;iptables&lt;/code&gt; firewall, so any changes you make on the &lt;code&gt;iptables&lt;/code&gt; can impact kubernetes and also be ruined by kubernetes.&lt;/p&gt;
-&lt;p&gt;At the end of this post we will visualize what actions Kubernetes is doing in the &lt;code&gt;iptables&lt;/code&gt;, this will allow us to realize how sophisticated is its algorithm.&lt;/p&gt;</description>
+&lt;p&gt;At the end of this post, we will visualize the actions Kubernetes takes in the iptables, allowing us to understand how sophisticated its algorithm is.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Install multiple Ubuntu Servers 24.04 LTS on a NAT Network with VirtualBox 7.1</title>
@@ -35,7 +35,7 @@
 &lt;li&gt;&lt;a href=&#34;#summary&#34;&gt;Summary&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;I will be using Ubuntu 24.04 LTS servers running on a Linux host with VirtualBox 7.1 to make a lab environment on my computer.&lt;/p&gt;
-&lt;p&gt;This post will cover of the following:&lt;/p&gt;
+&lt;p&gt;This post will cover the following:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Installing &amp;amp; configuring VirtualBox&lt;/li&gt;
 &lt;li&gt;Installing &amp;amp; configuring a NAT Network between &lt;code&gt;ctrlplane&lt;/code&gt;, &lt;code&gt;node1&lt;/code&gt; &amp;amp; &lt;code&gt;node2&lt;/code&gt; servers
