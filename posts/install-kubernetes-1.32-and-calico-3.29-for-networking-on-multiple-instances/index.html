@@ -112,7 +112,7 @@ At the end of this post we will visualize what actions Kubernetes is doing in th
     "kubernetes", "calico"
   ],
   "articleBody": "Security before installation It’s best practices to run only Kubernetes on a dedicated server. Running any side applications or tuning applications that are used by the cluster may cause an impact in the Kubernetes itself and isn’t recommended/supported.\nKubernetes uses the whole iptables firewall, so any changes you make on the iptables can impact kubernetes and also be ruined by kubernetes.\nAt the end of this post we will visualize what actions Kubernetes is doing in the iptables, this will allow us to realize how sophisticated is its algorithm.\nYou can now run the command to checkup what is your firewall configuration currently for the ctrlplane machine:\niptables -xvnL cat /etc/iptables/rules.v4 cat /etc/iptables/rules.v6 You’ll see the CLI iptables isn’t been installed yet, and we don’t care for now because kube-proxy will install iptables-persistent for us automatically. Allowing us to play with iptables via Kubernetes itself and also Calico for its networking solution between k8s pods.\nCalico is a networking and security solution that enables Kubernetes workloads to communicate seamlessly and securely. Mainly its goal is to allow us to write k8s charts of kind GlobalNetworkPolicy and/or NetworkPolicy to play with communication between pods, even though Kubernetes is also able to do that, since quite sometimes ago, with its powerful service types ClusterIP, NodePort, and LoadBalancer.\nDisable Swap and Load Kernel Modules It is highly recommended to disable swap space on your Ubuntu instances so that Kubernetes cluster works smoothly. Run beneath command on each instance to disable swap space.\nsudo swapoff -a sudo sed -i 's/\\/swap/# \\/swap/1' /etc/fstab Now, load the following kernel modules using modprobe command.\nsudo modprobe overlay sudo modprobe br_netfilter For the permanent loading of these modules, create the file with following content.\nsudo tee /etc/modules-load.d/k8s.conf \u003c",
-  "wordCount" : "3050",
+  "wordCount" : "3076",
   "inLanguage": "en",
   "image":"https://tomtom94.github.io/post3/cover.png","datePublished": "2024-03-24T09:39:17+01:00",
   "dateModified": "2024-03-24T09:39:17+01:00",
@@ -375,11 +375,13 @@ kubeadm join node3:6443 --token sdhe3d.glgn3kfm7ooqd2pg \
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>helm repo add projectcalico https://docs.tigera.io/calico/charts
 </span></span></code></pre></div><p>Install the Tigera Calico operator and custom resource definitions using the Helm chart:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>helm install calico projectcalico/tigera-operator --version v3.29.2 --namespace tigera-operator --create-namespace
+</span></span></code></pre></div><p>If ever you got issue with the Calico helm repo charts which isn&rsquo;t up to date, just do:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/calico.yaml
 </span></span></code></pre></div><p>Confirm that all of the pods are running with the following command:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>watch kubectl get pods -n calico-system
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>watch kubectl get pods -n kube-system
 </span></span></code></pre></div><p>Wait until each pod has the STATUS of Running.</p>
 <p>You can now see an iptables is been configured by Calico via <code>kube-proxy</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>iptables -xvnL
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo iptables -xvnL
 </span></span></code></pre></div><p>The 3 main iptables chain <code>INPUT</code>, <code>OUPUT</code> &amp; <code>FORWARD</code> have been feeded.</p>
 <h2 id="install-ingress-nginx">Install Ingress-Nginx<a hidden class="anchor" aria-hidden="true" href="#install-ingress-nginx">#</a></h2>
 <p>I recommend you to check how ingress works, but to get it easier <a href="https://kubernetes.github.io/ingress-nginx/deploy/">install it with Helm</a></p>
@@ -392,25 +394,23 @@ kubeadm join node3:6443 --token sdhe3d.glgn3kfm7ooqd2pg \
 </span></span><span style="display:flex;"><span>helm install metallb metallb/metallb --namespace metallb-system --create-namespace
 </span></span></code></pre></div><p>We are gonna create a specific config for Kubernetes to set up metallb</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>vi ~/metallb-charts.yaml
-</span></span></code></pre></div><pre><code>---
-apiVersion: metallb.io/v1beta1
+</span></span></code></pre></div><pre><code>apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
-name: default
-namespace: metallb-system
+  name: default
+  namespace: metallb-system
 spec:
-addresses:
-- 192.168.0.31-192.168.0.32
-autoAssign: true
+  addresses:
+  - 192.168.0.31-192.168.0.32
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
-name: default
-namespace: metallb-system
+  name: default
+  namespace: metallb-system
 spec:
-ipAddressPools:
-- default
+  ipAddressPools:
+  - default
 </code></pre>
 <p>We assume <code>192.168.0.31</code> &amp; <code>192.168.0.32</code> are respectivly the ip address of you <code>ctrlplane</code> &amp; <code>node1</code> machines.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>kubectl apply -f ~/metallb-charts.yaml
@@ -455,10 +455,10 @@ serviceAccount:
   name: &#34;&#34;
 
 # This is for setting Kubernetes Annotations to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+# For more information check out: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 podAnnotations: {}
 # This is for setting Kubernetes Labels to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+# For more information check out: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
 
 podSecurityContext: {}
@@ -562,16 +562,16 @@ affinity: {}
 </code></pre><p>Save and quit the vi. Then we are gonna deploy this <code>demo-app</code> into our Kubernetes cluster with the Helm CLI which is gonna compile the files to make beautiful k8s charts and finally run it with the classical <code>kubectl</code> CLI.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>helm upgrade --install ~/demo-app
 </span></span></code></pre></div><p><code>upgrade --install</code> means upgrade it, if not present just install it.</p>
-<p>Checkout the Pods have been correctly created, or updated:</p>
+<p>Check out the pods have been correctly created, or updated:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>kubectl get pods --all-namespaces
-</span></span></code></pre></div><p>Checkout the Pods have been correctly created, or updated:</p>
+</span></span></code></pre></div><p>Check out the services have been correctly created, or updated:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>kubectl get services --all-namespaces
-</span></span></code></pre></div><p>Finally checkout all what&rsquo;s running in your cluster:</p>
+</span></span></code></pre></div><p>Finally check out all what&rsquo;s running in your cluster:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>kubectl get all -A
 </span></span></code></pre></div><p>Usually we use the <code>watch</code> CLI on linux which refreshes every 5 seconds the command:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>watch kubectl get all -A
 </span></span></code></pre></div><h2 id="finally-security">Finally security<a hidden class="anchor" aria-hidden="true" href="#finally-security">#</a></h2>
-<p>We can now checkout what&rsquo;s been doing the machine with its firewall</p>
+<p>We can now check out what&rsquo;s been doing the machine with its firewall</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>iptables -xvnL
 </span></span></code></pre></div><pre><code>Chain INPUT (policy ACCEPT 27557 packets, 9485722 bytes)
     pkts      bytes target     prot opt in     out     source               destination
