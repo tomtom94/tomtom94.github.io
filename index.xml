@@ -55,7 +55,7 @@
 &lt;li&gt;Installing &amp;amp; configuring a NAT Network between &lt;code&gt;ctrlplane&lt;/code&gt;, &lt;code&gt;node1&lt;/code&gt; &amp;amp; &lt;code&gt;node2&lt;/code&gt; servers
 &lt;ul&gt;
 &lt;li&gt;NAT Network address: 10.0.2.0/24&lt;/li&gt;
-&lt;li&gt;NAT Network default gateway: 10.0.2.10&lt;/li&gt;
+&lt;li&gt;NAT Network default gateway: 10.0.2.2&lt;/li&gt;
 &lt;li&gt;3 virtual machines&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
