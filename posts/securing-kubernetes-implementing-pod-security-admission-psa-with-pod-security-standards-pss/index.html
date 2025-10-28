@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS) | Thomas Aumaitre</title>
+<meta name="keywords" content="kubernetes, security">
+<meta name="description" content="Table of contents
+
+Introduction
+Understanding Pod Security Standards (PSS)
+Implementing Pod Security Admission (PSA)
+Configuring PSA at the Cluster Level
+
+Example Configuration
+Explanation
+Applying the Configuration
+
+
+Implementing PSA in Production
+Real-World Examples
+
+Step 1: Create Namespaces with PSA Labels
+Step 2: Deploy Example Pods
+
+Deployment in namespace-dev (Allowed)
+Deployment in namespace-prod (Blocked)
+
+
+Step 3: Fixing Security Issues in namespace-prod
+
+
+Conclusion
+
+Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS)
+
+In Kubernetes version 1.31, managing pod security is achieved through the implementation of Pod Security Admission (PSA) and adherence to Pod Security Standards (PSS). These mechanisms ensure that pods comply with security best practices, enhancing the overall security posture of your cluster.">
+<meta name="author" content="">
+<link rel="canonical" href="https://tomtom94.github.io/posts/securing-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.45e028aa8ce0961349adf411b013ee39406be2c0bc80d4ea3fc04555f7f4611a.css" integrity="sha256-ReAoqozglhNJrfQRsBPuOUBr4sC8gNTqP8BFVff0YRo=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://tomtom94.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tomtom94.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tomtom94.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://tomtom94.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://tomtom94.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://tomtom94.github.io/posts/securing-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:url" content="https://tomtom94.github.io/posts/securing-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss/">
+  <meta property="og:site_name" content="Thomas Aumaitre">
+  <meta property="og:title" content="Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS)">
+  <meta property="og:description" content="Table of contents Introduction Understanding Pod Security Standards (PSS) Implementing Pod Security Admission (PSA) Configuring PSA at the Cluster Level Example Configuration Explanation Applying the Configuration Implementing PSA in Production Real-World Examples Step 1: Create Namespaces with PSA Labels Step 2: Deploy Example Pods Deployment in namespace-dev (Allowed) Deployment in namespace-prod (Blocked) Step 3: Fixing Security Issues in namespace-prod Conclusion Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS) In Kubernetes version 1.31, managing pod security is achieved through the implementation of Pod Security Admission (PSA) and adherence to Pod Security Standards (PSS). These mechanisms ensure that pods comply with security best practices, enhancing the overall security posture of your cluster.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-09-25T11:39:17+01:00">
+    <meta property="article:modified_time" content="2025-09-25T11:39:17+01:00">
+    <meta property="article:tag" content="Kubernetes">
+    <meta property="article:tag" content="Security">
+    <meta property="og:image" content="https://tomtom94.github.io/post4/cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tomtom94.github.io/post4/cover.png">
+<meta name="twitter:title" content="Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS)">
+<meta name="twitter:description" content="Table of contents
+
+Introduction
+Understanding Pod Security Standards (PSS)
+Implementing Pod Security Admission (PSA)
+Configuring PSA at the Cluster Level
+
+Example Configuration
+Explanation
+Applying the Configuration
+
+
+Implementing PSA in Production
+Real-World Examples
+
+Step 1: Create Namespaces with PSA Labels
+Step 2: Deploy Example Pods
+
+Deployment in namespace-dev (Allowed)
+Deployment in namespace-prod (Blocked)
+
+
+Step 3: Fixing Security Issues in namespace-prod
+
+
+Conclusion
+
+Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS)
+
+In Kubernetes version 1.31, managing pod security is achieved through the implementation of Pod Security Admission (PSA) and adherence to Pod Security Standards (PSS). These mechanisms ensure that pods comply with security best practices, enhancing the overall security posture of your cluster.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://tomtom94.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS)",
+      "item": "https://tomtom94.github.io/posts/securing-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS)",
+  "name": "Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS)",
+  "description": "Table of contents Introduction Understanding Pod Security Standards (PSS) Implementing Pod Security Admission (PSA) Configuring PSA at the Cluster Level Example Configuration Explanation Applying the Configuration Implementing PSA in Production Real-World Examples Step 1: Create Namespaces with PSA Labels Step 2: Deploy Example Pods Deployment in namespace-dev (Allowed) Deployment in namespace-prod (Blocked) Step 3: Fixing Security Issues in namespace-prod Conclusion Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS) In Kubernetes version 1.31, managing pod security is achieved through the implementation of Pod Security Admission (PSA) and adherence to Pod Security Standards (PSS). These mechanisms ensure that pods comply with security best practices, enhancing the overall security posture of your cluster.\n",
+  "keywords": [
+    "kubernetes", "security"
+  ],
+  "articleBody": "Table of contents Introduction Understanding Pod Security Standards (PSS) Implementing Pod Security Admission (PSA) Configuring PSA at the Cluster Level Example Configuration Explanation Applying the Configuration Implementing PSA in Production Real-World Examples Step 1: Create Namespaces with PSA Labels Step 2: Deploy Example Pods Deployment in namespace-dev (Allowed) Deployment in namespace-prod (Blocked) Step 3: Fixing Security Issues in namespace-prod Conclusion Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS) In Kubernetes version 1.31, managing pod security is achieved through the implementation of Pod Security Admission (PSA) and adherence to Pod Security Standards (PSS). These mechanisms ensure that pods comply with security best practices, enhancing the overall security posture of your cluster.\nUnderstanding Pod Security Standards (PSS) Kubernetes defines three primary security profiles:\nPrivileged: Unrestricted policy allowing all pod configurations. Suitable for trusted workloads that require elevated privileges. Baseline: Minimally restrictive policy preventing known privilege escalations. Ideal for general-purpose applications adhering to standard best practices. Restricted: Highly restrictive policy enforcing current pod hardening practices. Intended for security-critical applications and untrusted workloads. Each profile specifies controls for various security settings, such as privilege escalation, root user enforcement, and capabilities management.\nImplementing Pod Security Admission (PSA) PSA is an admission controller that enforces PSS by validating pod specifications during creation and updates. It operates in three modes:\nEnforce: Blocks the creation of pods that don’t comply with the specified security standards. Warn: Allows the creation of non-compliant pods but issues warnings. Audit: Records non-compliance events for auditing purposes without blocking or warning. Configuring PSA at the Cluster Level To apply PSS across your cluster, configure the PSA admission controller with default settings and exemptions. This involves creating an AdmissionConfiguration file and specifying the desired defaults and exemptions.\nExample Configuration Create a configuration file named psa-config.yaml:\napiVersion: apiserver.config.k8s.io/v1 kind: AdmissionConfiguration plugins: - name: PodSecurity configuration: apiVersion: pod-security.admission.config.k8s.io/v1 kind: PodSecurityConfiguration defaults: enforce: \"baseline\" enforce-version: \"latest\" audit: \"restricted\" audit-version: \"latest\" warn: \"restricted\" warn-version: \"latest\" exemptions: usernames: [] runtimeClasses: [] namespaces: [kube-system] Explanation Defaults: Sets the default enforcement level to baseline with restricted profiles for audit and warn modes. Exemptions: Excludes the kube-system namespace from PSA enforcement to prevent interference with critical system pods. Applying the Configuration Prepare the Configuration Directory:\nmkdir -p /etc/kubernetes/psa cp psa-config.yaml /etc/kubernetes/psa/ Modify the API Server Configuration:\nEdit the Kubernetes API server configuration to include the PSA configuration file:\napiServer: extraArgs: admission-control-config-file: /etc/kubernetes/psa/psa-config.yaml extraVolumes: - name: psa-config hostPath: /etc/kubernetes/psa mountPath: /etc/kubernetes/psa readOnly: true Restart the API Server:\nAfter updating the configuration, restart the API server to apply the changes.\nImplementing PSA in Production When deploying PSA in a production environment, consider the following best practices:\nGradual Enforcement: Start with warn and audit modes to identify potential issues without disrupting workloads. Transition to enforce mode once compliance is verified. Namespace-Specific Policies: Apply different security standards to namespaces based on workload requirements. For example, enforce restricted policies on sensitive namespaces while using baseline for others. Regular Auditing: Continuously monitor audit logs to detect and address non-compliant pod configurations. Exemptions Management: Limit exemptions to essential namespaces and service accounts to minimize security risks. Real-World Examples namespace-dev: Uses baseline security (allows common application deployments). namespace-prod: Uses restricted security (follows the strictest security policies). Step 1: Create Namespaces with PSA Labels PSA works by applying labels to namespaces to enforce the desired security standard.\n# Create the dev namespace with \"baseline\" security kubectl create namespace namespace-dev kubectl label namespace namespace-dev pod-security.kubernetes.io/enforce=baseline \\ pod-security.kubernetes.io/enforce-version=latest # Create the production namespace with \"restricted\" security kubectl create namespace namespace-prod kubectl label namespace namespace-prod pod-security.kubernetes.io/enforce=restricted \\ pod-security.kubernetes.io/enforce-version=latest Step 2: Deploy Example Pods Deployment in namespace-dev (Allowed) Since the baseline profile is applied, a pod with root access can be created.\napiVersion: v1 kind: Pod metadata: name: baseline-pod namespace: namespace-dev spec: containers: - name: nginx image: nginx securityContext: runAsUser: 1000 # Allowed in \"baseline\" Apply it:\nkubectl apply -f baseline-pod.yaml This pod will be created successfully because the baseline profile allows it.\nDeployment in namespace-prod (Blocked) The restricted profile blocks privileged access, so a pod running as root will fail.\napiVersion: v1 kind: Pod metadata: name: restricted-pod namespace: namespace-prod spec: containers: - name: nginx image: nginx securityContext: runAsUser: 0 # NOT ALLOWED in \"restricted\" Apply it:\nkubectl apply -f restricted-pod.yaml This pod will be rejected due to the restricted policy.\nStep 3: Fixing Security Issues in namespace-prod To ensure the pod follows the restricted policy, modify the securityContext:\napiVersion: v1 kind: Pod metadata: name: restricted-pod namespace: namespace-prod spec: containers: - name: nginx image: nginx securityContext: runAsNonRoot: true # Enforces non-root user seccompProfile: type: RuntimeDefault # Uses secure seccomp profile capabilities: drop: [\"ALL\"] # Drops unnecessary Linux capabilities Apply the fixed pod:\nkubectl apply -f restricted-pod.yaml This pod will now be allowed because it complies with restricted security policies.\nConclusion Implementing Pod Security Admission (PSA) and Pod Security Standards (PSS) in Kubernetes 1.31 is a crucial step in securing your workloads while maintaining flexibility across different environments. By applying namespace-based security policies, you can enforce the right level of restrictions based on the sensitivity of your applications.\nIn this guide, we demonstrated how to:\n✅ Set up PSA with different security levels for development (baseline) and production (restricted) namespaces.\n✅ Deploy and troubleshoot pods that comply (or fail) with PSS guidelines.\n✅ Ensure secure best practices like non-root users, seccomp profiles, and dropped Linux capabilities.\nBy gradually enforcing these policies—starting with warn and audit modes before moving to enforce—you can improve security without disrupting existing workloads.\nFinal Takeaway: Security should never be an afterthought in Kubernetes. With PSA and PSS, you gain a built-in, standardized approach to prevent misconfigurations and privilege escalations, making your cluster more resilient and production-ready.\n",
+  "wordCount" : "938",
+  "inLanguage": "en",
+  "image":"https://tomtom94.github.io/post4/cover.png","datePublished": "2025-09-25T11:39:17+01:00",
+  "dateModified": "2025-09-25T11:39:17+01:00",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tomtom94.github.io/posts/securing-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Thomas Aumaitre",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tomtom94.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://tomtom94.github.io/" accesskey="h" title="Thomas Aumaitre (Alt + H)">Thomas Aumaitre</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://tomtom94.github.io/categories/" title="Categories">
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://tomtom94.github.io/archives/" title="Archives">
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://tomtom94.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://tomtom94.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://tomtom94.github.io/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS)
+    </h1>
+    <div class="post-meta"><span title='2025-09-25 11:39:17 +0100 +0100'>September 25, 2025</span>&nbsp;·&nbsp;5 min
+
+</div>
+  </header> 
+<figure class="entry-cover"><a href="https://tomtom94.github.io/post4/cover.png" target="_blank"
+            rel="noopener noreferrer"><img loading="eager" src="https://tomtom94.github.io/post4/cover.png" alt="Cover image"></a>
+        <p>Kubernetes PSA and PSS</p>
+</figure>
+  <div class="post-content"><h1 id="table-of-contents">Table of contents<a hidden class="anchor" aria-hidden="true" href="#table-of-contents">#</a></h1>
+<ol>
+<li><a href="#securing-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss">Introduction</a></li>
+<li><a href="#understanding-pod-security-standards-pss">Understanding Pod Security Standards (PSS)</a></li>
+<li><a href="#implementing-pod-security-admission-psa">Implementing Pod Security Admission (PSA)</a></li>
+<li><a href="#configuring-psa-at-the-cluster-level">Configuring PSA at the Cluster Level</a>
+<ul>
+<li><a href="#example-configuration">Example Configuration</a></li>
+<li><a href="#explanation">Explanation</a></li>
+<li><a href="#applying-the-configuration">Applying the Configuration</a></li>
+</ul>
+</li>
+<li><a href="#implementing-psa-in-production">Implementing PSA in Production</a></li>
+<li><a href="#real-world-examples">Real-World Examples</a>
+<ul>
+<li><a href="#step-1-create-namespaces-with-psa-labels">Step 1: Create Namespaces with PSA Labels</a></li>
+<li><a href="#step-2-deploy-example-pods">Step 2: Deploy Example Pods</a>
+<ul>
+<li><a href="#deployment-in-namespace-dev-allowed">Deployment in <code>namespace-dev</code> (Allowed)</a></li>
+<li><a href="#deployment-in-namespace-prod-blocked">Deployment in <code>namespace-prod</code> (Blocked)</a></li>
+</ul>
+</li>
+<li><a href="#step-3-fixing-security-issues-in-namespace-prod">Step 3: Fixing Security Issues in <code>namespace-prod</code></a></li>
+</ul>
+</li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ol>
+<h2 id="securing-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss">Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS)<a hidden class="anchor" aria-hidden="true" href="#securing-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss">#</a></h2>
+<hr>
+<p>In <strong>Kubernetes version 1.31</strong>, managing pod security is achieved through the implementation of <strong>Pod Security Admission (PSA)</strong> and adherence to <strong>Pod Security Standards (PSS)</strong>. These mechanisms ensure that pods comply with security best practices, enhancing the overall security posture of your cluster.</p>
+<p><img alt="Pod Security Admission Overview" loading="lazy" src="https://miro.medium.com/v2/resize:fit:700/1*A447TglAPpOKHQoDywzWkQ.png"></p>
+<hr>
+<h2 id="understanding-pod-security-standards-pss">Understanding Pod Security Standards (PSS)<a hidden class="anchor" aria-hidden="true" href="#understanding-pod-security-standards-pss">#</a></h2>
+<p>Kubernetes defines three primary security profiles:</p>
+<ol>
+<li><strong>Privileged</strong>: Unrestricted policy allowing all pod configurations. Suitable for trusted workloads that require elevated privileges.</li>
+<li><strong>Baseline</strong>: Minimally restrictive policy preventing known privilege escalations. Ideal for general-purpose applications adhering to standard best practices.</li>
+<li><strong>Restricted</strong>: Highly restrictive policy enforcing current pod hardening practices. Intended for security-critical applications and untrusted workloads.</li>
+</ol>
+<p>Each profile specifies controls for various security settings, such as privilege escalation, root user enforcement, and capabilities management.</p>
+<hr>
+<h2 id="implementing-pod-security-admission-psa">Implementing Pod Security Admission (PSA)<a hidden class="anchor" aria-hidden="true" href="#implementing-pod-security-admission-psa">#</a></h2>
+<p>PSA is an admission controller that enforces PSS by validating pod specifications during creation and updates. It operates in three modes:</p>
+<ul>
+<li><strong>Enforce</strong>: Blocks the creation of pods that don’t comply with the specified security standards.</li>
+<li><strong>Warn</strong>: Allows the creation of non-compliant pods but issues warnings.</li>
+<li><strong>Audit</strong>: Records non-compliance events for auditing purposes without blocking or warning.</li>
+</ul>
+<hr>
+<h2 id="configuring-psa-at-the-cluster-level">Configuring PSA at the Cluster Level<a hidden class="anchor" aria-hidden="true" href="#configuring-psa-at-the-cluster-level">#</a></h2>
+<p>To apply PSS across your cluster, configure the PSA admission controller with default settings and exemptions. This involves creating an <code>AdmissionConfiguration</code> file and specifying the desired defaults and exemptions.</p>
+<h3 id="example-configuration">Example Configuration<a hidden class="anchor" aria-hidden="true" href="#example-configuration">#</a></h3>
+<p>Create a configuration file named <code>psa-config.yaml</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apiserver.config.k8s.io/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">AdmissionConfiguration</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">plugins</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">PodSecurity</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">configuration</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">pod-security.admission.config.k8s.io/v1</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">PodSecurityConfiguration</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">defaults</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">enforce</span>: <span style="color:#e6db74">&#34;baseline&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">enforce-version</span>: <span style="color:#e6db74">&#34;latest&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">audit</span>: <span style="color:#e6db74">&#34;restricted&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">audit-version</span>: <span style="color:#e6db74">&#34;latest&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">warn</span>: <span style="color:#e6db74">&#34;restricted&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">warn-version</span>: <span style="color:#e6db74">&#34;latest&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">exemptions</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">usernames</span>: []
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">runtimeClasses</span>: []
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">namespaces</span>: [<span style="color:#ae81ff">kube-system]</span>
+</span></span></code></pre></div><h3 id="explanation">Explanation<a hidden class="anchor" aria-hidden="true" href="#explanation">#</a></h3>
+<ul>
+<li><strong>Defaults</strong>: Sets the default enforcement level to <code>baseline</code> with <code>restricted</code> profiles for audit and warn modes.</li>
+<li><strong>Exemptions</strong>: Excludes the <code>kube-system</code> namespace from PSA enforcement to prevent interference with critical system pods.</li>
+</ul>
+<h3 id="applying-the-configuration">Applying the Configuration<a hidden class="anchor" aria-hidden="true" href="#applying-the-configuration">#</a></h3>
+<ol>
+<li>
+<p><strong>Prepare the Configuration Directory:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mkdir -p /etc/kubernetes/psa
+</span></span><span style="display:flex;"><span>cp psa-config.yaml /etc/kubernetes/psa/
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Modify the API Server Configuration:</strong></p>
+<p>Edit the Kubernetes API server configuration to include the PSA configuration file:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiServer</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">extraArgs</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">admission-control-config-file</span>: <span style="color:#ae81ff">/etc/kubernetes/psa/psa-config.yaml</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">extraVolumes</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">psa-config</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">hostPath</span>: <span style="color:#ae81ff">/etc/kubernetes/psa</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">mountPath</span>: <span style="color:#ae81ff">/etc/kubernetes/psa</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">readOnly</span>: <span style="color:#66d9ef">true</span>
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Restart the API Server:</strong></p>
+<p>After updating the configuration, restart the API server to apply the changes.</p>
+</li>
+</ol>
+<hr>
+<h2 id="implementing-psa-in-production">Implementing PSA in Production<a hidden class="anchor" aria-hidden="true" href="#implementing-psa-in-production">#</a></h2>
+<p>When deploying PSA in a production environment, consider the following best practices:</p>
+<ul>
+<li><strong>Gradual Enforcement</strong>: Start with <code>warn</code> and <code>audit</code> modes to identify potential issues without disrupting workloads. Transition to <code>enforce</code> mode once compliance is verified.</li>
+<li><strong>Namespace-Specific Policies</strong>: Apply different security standards to namespaces based on workload requirements. For example, enforce <code>restricted</code> policies on sensitive namespaces while using <code>baseline</code> for others.</li>
+<li><strong>Regular Auditing</strong>: Continuously monitor audit logs to detect and address non-compliant pod configurations.</li>
+<li><strong>Exemptions Management</strong>: Limit exemptions to essential namespaces and service accounts to minimize security risks.</li>
+</ul>
+<hr>
+<h2 id="real-world-examples">Real-World Examples<a hidden class="anchor" aria-hidden="true" href="#real-world-examples">#</a></h2>
+<ul>
+<li><code>namespace-dev</code>: Uses <strong>baseline</strong> security (allows common application deployments).</li>
+<li><code>namespace-prod</code>: Uses <strong>restricted</strong> security (follows the strictest security policies).</li>
+</ul>
+<h3 id="step-1-create-namespaces-with-psa-labels">Step 1: Create Namespaces with PSA Labels<a hidden class="anchor" aria-hidden="true" href="#step-1-create-namespaces-with-psa-labels">#</a></h3>
+<p>PSA works by applying <strong>labels</strong> to namespaces to enforce the desired security standard.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Create the dev namespace with &#34;baseline&#34; security</span>
+</span></span><span style="display:flex;"><span>kubectl create namespace namespace-dev
+</span></span><span style="display:flex;"><span>kubectl label namespace namespace-dev pod-security.kubernetes.io/enforce<span style="color:#f92672">=</span>baseline <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    pod-security.kubernetes.io/enforce-version<span style="color:#f92672">=</span>latest
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Create the production namespace with &#34;restricted&#34; security</span>
+</span></span><span style="display:flex;"><span>kubectl create namespace namespace-prod
+</span></span><span style="display:flex;"><span>kubectl label namespace namespace-prod pod-security.kubernetes.io/enforce<span style="color:#f92672">=</span>restricted <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    pod-security.kubernetes.io/enforce-version<span style="color:#f92672">=</span>latest
+</span></span></code></pre></div><h3 id="step-2-deploy-example-pods">Step 2: Deploy Example Pods<a hidden class="anchor" aria-hidden="true" href="#step-2-deploy-example-pods">#</a></h3>
+<h4 id="deployment-in-namespace-dev-allowed">Deployment in <code>namespace-dev</code> (Allowed)<a hidden class="anchor" aria-hidden="true" href="#deployment-in-namespace-dev-allowed">#</a></h4>
+<p>Since the <code>baseline</code> profile is applied, a pod with <strong>root access</strong> can be created.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Pod</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">baseline-pod</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">namespace-dev</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">containers</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nginx</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">image</span>: <span style="color:#ae81ff">nginx</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">securityContext</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">runAsUser</span>: <span style="color:#ae81ff">1000</span> <span style="color:#75715e"># Allowed in &#34;baseline&#34;</span>
+</span></span></code></pre></div><p>Apply it:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl apply -f baseline-pod.yaml
+</span></span></code></pre></div><p>This pod <strong>will be created successfully</strong> because the <code>baseline</code> profile allows it.</p>
+<h4 id="deployment-in-namespace-prod-blocked">Deployment in <code>namespace-prod</code> (Blocked)<a hidden class="anchor" aria-hidden="true" href="#deployment-in-namespace-prod-blocked">#</a></h4>
+<p>The <code>restricted</code> profile <strong>blocks privileged access</strong>, so a pod running as <code>root</code> will <strong>fail</strong>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Pod</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">restricted-pod</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">namespace-prod</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">containers</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nginx</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">image</span>: <span style="color:#ae81ff">nginx</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">securityContext</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">runAsUser</span>: <span style="color:#ae81ff">0</span> <span style="color:#75715e"># NOT ALLOWED in &#34;restricted&#34;</span>
+</span></span></code></pre></div><p>Apply it:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl apply -f restricted-pod.yaml
+</span></span></code></pre></div><p><strong>This pod will be rejected</strong> due to the <code>restricted</code> policy.</p>
+<h3 id="step-3-fixing-security-issues-in-namespace-prod">Step 3: Fixing Security Issues in <code>namespace-prod</code><a hidden class="anchor" aria-hidden="true" href="#step-3-fixing-security-issues-in-namespace-prod">#</a></h3>
+<p>To ensure the pod follows the <strong>restricted</strong> policy, modify the <code>securityContext</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Pod</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">restricted-pod</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">namespace-prod</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">containers</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nginx</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">image</span>: <span style="color:#ae81ff">nginx</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">securityContext</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">runAsNonRoot</span>: <span style="color:#66d9ef">true</span> <span style="color:#75715e"># Enforces non-root user</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">seccompProfile</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">type</span>: <span style="color:#ae81ff">RuntimeDefault</span> <span style="color:#75715e"># Uses secure seccomp profile</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">capabilities</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">drop</span>: [<span style="color:#e6db74">&#34;ALL&#34;</span>] <span style="color:#75715e"># Drops unnecessary Linux capabilities</span>
+</span></span></code></pre></div><p>Apply the fixed pod:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl apply -f restricted-pod.yaml
+</span></span></code></pre></div><p>This pod <strong>will now be allowed</strong> because it complies with <code>restricted</code> security policies.</p>
+<hr>
+<h2 id="conclusion">Conclusion<a hidden class="anchor" aria-hidden="true" href="#conclusion">#</a></h2>
+<p>Implementing <strong>Pod Security Admission (PSA) and Pod Security Standards (PSS)</strong> in <strong>Kubernetes 1.31</strong> is a crucial step in securing your workloads while maintaining flexibility across different environments. By applying <strong>namespace-based security policies</strong>, you can enforce the right level of restrictions based on the sensitivity of your applications.</p>
+<p>In this guide, we demonstrated how to:</p>
+<p>✅ Set up PSA with different security levels for <strong>development</strong> (<code>baseline</code>) and <strong>production</strong> (<code>restricted</code>) namespaces.</p>
+<p>✅ Deploy and troubleshoot pods that comply (or fail) with <strong>PSS guidelines</strong>.</p>
+<p>✅ Ensure <strong>secure best practices</strong> like <strong>non-root users, seccomp profiles, and dropped Linux capabilities</strong>.</p>
+<p>By <strong>gradually enforcing</strong> these policies—starting with <code>warn</code> and <code>audit</code> modes before moving to <code>enforce</code>—you can <strong>improve security</strong> without disrupting existing workloads.</p>
+<p><strong>Final Takeaway:</strong> Security should never be an afterthought in Kubernetes. With <strong>PSA and PSS</strong>, you gain a <strong>built-in, standardized approach</strong> to prevent misconfigurations and privilege escalations, making your cluster more <strong>resilient and production-ready</strong>.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://tomtom94.github.io/tags/kubernetes/">Kubernetes</a></li>
+      <li><a href="https://tomtom94.github.io/tags/security/">Security</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://tomtom94.github.io/posts/install-kubernetes-1.32-and-calico-3.29-for-networking-on-multiple-instances/">
+    <span class="title">« Prev</span>
+    <br />
+    <span>Install Kubernetes 1.32 and Calico 3.29 for networking on multiple instances</span>
+  </a>
+</nav>
+
+
+<ul class="share-buttons">
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS) on x"
+            href="https://x.com/intent/tweet/?text=Securing%20Kubernetes%3a%20Implementing%20Pod%20Security%20Admission%20%28PSA%29%20with%20Pod%20Security%20Standards%20%28PSS%29&amp;url=https%3a%2f%2ftomtom94.github.io%2fposts%2fsecuring-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss%2f&amp;hashtags=kubernetes%2csecurity">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M512 62.554 L 512 449.446 C 512 483.97 483.97 512 449.446 512 L 62.554 512 C 28.03 512 0 483.97 0 449.446 L 0 62.554 C 0 28.03 28.029 0 62.554 0 L 449.446 0 C 483.971 0 512 28.03 512 62.554 Z M 269.951 190.75 L 182.567 75.216 L 56 75.216 L 207.216 272.95 L 63.9 436.783 L 125.266 436.783 L 235.9 310.383 L 332.567 436.783 L 456 436.783 L 298.367 228.367 L 432.367 75.216 L 371.033 75.216 Z M 127.633 110 L 164.101 110 L 383.481 400.065 L 349.5 400.065 Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS) on linkedin"
+            href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2ftomtom94.github.io%2fposts%2fsecuring-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss%2f&amp;title=Securing%20Kubernetes%3a%20Implementing%20Pod%20Security%20Admission%20%28PSA%29%20with%20Pod%20Security%20Standards%20%28PSS%29&amp;summary=Securing%20Kubernetes%3a%20Implementing%20Pod%20Security%20Admission%20%28PSA%29%20with%20Pod%20Security%20Standards%20%28PSS%29&amp;source=https%3a%2f%2ftomtom94.github.io%2fposts%2fsecuring-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-288.985,423.278l0,-225.717l-75.04,0l0,225.717l75.04,0Zm270.539,0l0,-129.439c0,-69.333 -37.018,-101.586 -86.381,-101.586c-39.804,0 -57.634,21.891 -67.617,37.266l0,-31.958l-75.021,0c0.995,21.181 0,225.717 0,225.717l75.02,0l0,-126.056c0,-6.748 0.486,-13.492 2.474,-18.315c5.414,-13.475 17.767,-27.434 38.494,-27.434c27.135,0 38.007,20.707 38.007,51.037l0,120.768l75.024,0Zm-307.552,-334.556c-25.674,0 -42.448,16.879 -42.448,39.002c0,21.658 16.264,39.002 41.455,39.002l0.484,0c26.165,0 42.452,-17.344 42.452,-39.002c-0.485,-22.092 -16.241,-38.954 -41.943,-39.002Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS) on reddit"
+            href="https://reddit.com/submit?url=https%3a%2f%2ftomtom94.github.io%2fposts%2fsecuring-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss%2f&title=Securing%20Kubernetes%3a%20Implementing%20Pod%20Security%20Admission%20%28PSA%29%20with%20Pod%20Security%20Standards%20%28PSS%29">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-3.446,265.638c0,-22.964 -18.616,-41.58 -41.58,-41.58c-11.211,0 -21.361,4.457 -28.841,11.666c-28.424,-20.508 -67.586,-33.757 -111.204,-35.278l18.941,-89.121l61.884,13.157c0.756,15.734 13.642,28.29 29.56,28.29c16.407,0 29.706,-13.299 29.706,-29.701c0,-16.403 -13.299,-29.702 -29.706,-29.702c-11.666,0 -21.657,6.792 -26.515,16.578l-69.105,-14.69c-1.922,-0.418 -3.939,-0.042 -5.585,1.036c-1.658,1.073 -2.811,2.761 -3.224,4.686l-21.152,99.438c-44.258,1.228 -84.046,14.494 -112.837,35.232c-7.468,-7.164 -17.589,-11.591 -28.757,-11.591c-22.965,0 -41.585,18.616 -41.585,41.58c0,16.896 10.095,31.41 24.568,37.918c-0.639,4.135 -0.99,8.328 -0.99,12.576c0,63.977 74.469,115.836 166.33,115.836c91.861,0 166.334,-51.859 166.334,-115.836c0,-4.218 -0.347,-8.387 -0.977,-12.493c14.564,-6.47 24.735,-21.034 24.735,-38.001Zm-119.474,108.193c-20.27,20.241 -59.115,21.816 -70.534,21.816c-11.428,0 -50.277,-1.575 -70.522,-21.82c-3.007,-3.008 -3.007,-7.882 0,-10.889c3.003,-2.999 7.882,-3.003 10.885,0c12.777,12.781 40.11,17.317 59.637,17.317c19.522,0 46.86,-4.536 59.657,-17.321c3.016,-2.999 7.886,-2.995 10.885,0.008c3.008,3.011 3.003,7.882 -0.008,10.889Zm-5.23,-48.781c-16.373,0 -29.701,-13.324 -29.701,-29.698c0,-16.381 13.328,-29.714 29.701,-29.714c16.378,0 29.706,13.333 29.706,29.714c0,16.374 -13.328,29.698 -29.706,29.698Zm-160.386,-29.702c0,-16.381 13.328,-29.71 29.714,-29.71c16.369,0 29.689,13.329 29.689,29.71c0,16.373 -13.32,29.693 -29.689,29.693c-16.386,0 -29.714,-13.32 -29.714,-29.693Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS) on facebook"
+            href="https://facebook.com/sharer/sharer.php?u=https%3a%2f%2ftomtom94.github.io%2fposts%2fsecuring-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-106.468,0l0,-192.915l66.6,0l12.672,-82.621l-79.272,0l0,-53.617c0,-22.603 11.073,-44.636 46.58,-44.636l36.042,0l0,-70.34c0,0 -32.71,-5.582 -63.982,-5.582c-65.288,0 -107.96,39.569 -107.96,111.204l0,62.971l-72.573,0l0,82.621l72.573,0l0,192.915l-191.104,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS) on whatsapp"
+            href="https://api.whatsapp.com/send?text=Securing%20Kubernetes%3a%20Implementing%20Pod%20Security%20Admission%20%28PSA%29%20with%20Pod%20Security%20Standards%20%28PSS%29%20-%20https%3a%2f%2ftomtom94.github.io%2fposts%2fsecuring-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-58.673,127.703c-33.842,-33.881 -78.847,-52.548 -126.798,-52.568c-98.799,0 -179.21,80.405 -179.249,179.234c-0.013,31.593 8.241,62.428 23.927,89.612l-25.429,92.884l95.021,-24.925c26.181,14.28 55.659,21.807 85.658,21.816l0.074,0c98.789,0 179.206,-80.413 179.247,-179.243c0.018,-47.895 -18.61,-92.93 -52.451,-126.81Zm-126.797,275.782l-0.06,0c-26.734,-0.01 -52.954,-7.193 -75.828,-20.767l-5.441,-3.229l-56.386,14.792l15.05,-54.977l-3.542,-5.637c-14.913,-23.72 -22.791,-51.136 -22.779,-79.287c0.033,-82.142 66.867,-148.971 149.046,-148.971c39.793,0.014 77.199,15.531 105.329,43.692c28.128,28.16 43.609,65.592 43.594,105.4c-0.034,82.149 -66.866,148.983 -148.983,148.984Zm81.721,-111.581c-4.479,-2.242 -26.499,-13.075 -30.604,-14.571c-4.105,-1.495 -7.091,-2.241 -10.077,2.241c-2.986,4.483 -11.569,14.572 -14.182,17.562c-2.612,2.988 -5.225,3.364 -9.703,1.12c-4.479,-2.241 -18.91,-6.97 -36.017,-22.23c-13.314,-11.876 -22.304,-26.542 -24.916,-31.026c-2.612,-4.484 -0.279,-6.908 1.963,-9.14c2.016,-2.007 4.48,-5.232 6.719,-7.847c2.24,-2.615 2.986,-4.484 4.479,-7.472c1.493,-2.99 0.747,-5.604 -0.374,-7.846c-1.119,-2.241 -10.077,-24.288 -13.809,-33.256c-3.635,-8.733 -7.327,-7.55 -10.077,-7.688c-2.609,-0.13 -5.598,-0.158 -8.583,-0.158c-2.986,0 -7.839,1.121 -11.944,5.604c-4.105,4.484 -15.675,15.32 -15.675,37.364c0,22.046 16.048,43.342 18.287,46.332c2.24,2.99 31.582,48.227 76.511,67.627c10.685,4.615 19.028,7.371 25.533,9.434c10.728,3.41 20.492,2.929 28.209,1.775c8.605,-1.285 26.499,-10.833 30.231,-21.295c3.732,-10.464 3.732,-19.431 2.612,-21.298c-1.119,-1.869 -4.105,-2.99 -8.583,-5.232Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS) on telegram"
+            href="https://telegram.me/share/url?text=Securing%20Kubernetes%3a%20Implementing%20Pod%20Security%20Admission%20%28PSA%29%20with%20Pod%20Security%20Standards%20%28PSS%29&amp;url=https%3a%2f%2ftomtom94.github.io%2fposts%2fsecuring-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss%2f">
+            <svg version="1.1" xml:space="preserve" viewBox="2 2 28 28" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M26.49,29.86H5.5a3.37,3.37,0,0,1-2.47-1,3.35,3.35,0,0,1-1-2.47V5.48A3.36,3.36,0,0,1,3,3,3.37,3.37,0,0,1,5.5,2h21A3.38,3.38,0,0,1,29,3a3.36,3.36,0,0,1,1,2.46V26.37a3.35,3.35,0,0,1-1,2.47A3.38,3.38,0,0,1,26.49,29.86Zm-5.38-6.71a.79.79,0,0,0,.85-.66L24.73,9.24a.55.55,0,0,0-.18-.46.62.62,0,0,0-.41-.17q-.08,0-16.53,6.11a.59.59,0,0,0-.41.59.57.57,0,0,0,.43.52l4,1.24,1.61,4.83a.62.62,0,0,0,.63.43.56.56,0,0,0,.4-.17L16.54,20l4.09,3A.9.9,0,0,0,21.11,23.15ZM13.8,20.71l-1.21-4q8.72-5.55,8.78-5.55c.15,0,.23,0,.23.16a.18.18,0,0,1,0,.06s-2.51,2.3-7.52,6.8Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS) on ycombinator"
+            href="https://news.ycombinator.com/submitlink?t=Securing%20Kubernetes%3a%20Implementing%20Pod%20Security%20Admission%20%28PSA%29%20with%20Pod%20Security%20Standards%20%28PSS%29&u=https%3a%2f%2ftomtom94.github.io%2fposts%2fsecuring-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss%2f">
+            <svg version="1.1" xml:space="preserve" width="30px" height="30px" viewBox="0 0 512 512" fill="currentColor"
+                xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+                <path
+                    d="M449.446 0C483.971 0 512 28.03 512 62.554L512 449.446C512 483.97 483.97 512 449.446 512L62.554 512C28.03 512 0 483.97 0 449.446L0 62.554C0 28.03 28.029 0 62.554 0L449.446 0ZM183.8767 87.9921H121.8427L230.6673 292.4508V424.0079H281.3328V292.4508L390.1575 87.9921H328.1233L256 238.2489z" />
+            </svg>
+        </a>
+    </li>
+</ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://tomtom94.github.io/">Thomas Aumaitre</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

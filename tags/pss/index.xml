@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>PSS on Thomas Aumaitre</title>
+    <link>http://localhost:1313/tags/pss/</link>
+    <description>Recent content in PSS on Thomas Aumaitre</description>
+    <generator>Hugo -- 0.143.0</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 24 Sep 2024 11:39:17 +0100</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/pss/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS)</title>
+      <link>http://localhost:1313/posts/securing-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss/</link>
+      <pubDate>Tue, 24 Sep 2024 11:39:17 +0100</pubDate>
+      <guid>http://localhost:1313/posts/securing-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss/</guid>
+      <description>&lt;h1 id=&#34;table-of-contents&#34;&gt;Table of contents&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#security-before-installation&#34;&gt;Security before installation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#disable-swap-and-load-kernel-modules&#34;&gt;Disable Swap and Load Kernel Modules&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#install-and-configure-containerd&#34;&gt;Install and Configure Containerd&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#add-kubernetes-package-repository&#34;&gt;Add Kubernetes Package Repository&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#install-kubernetes-components-kubeadm-kubelet-kubectl&#34;&gt;Install Kubernetes Components (Kubeadm, kubelet &amp;amp; kubectl)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#initialize-kubernetes-cluster&#34;&gt;Initialize Kubernetes Cluster&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#install-helm&#34;&gt;Install Helm&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#install-calico-network-add-on-plugin&#34;&gt;Install Calico Network Add-on Plugin&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#install-ingress-nginx&#34;&gt;Install Ingress-Nginx&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#install-load-balancer&#34;&gt;Install Load Balancer&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#test-kubernetes-installation&#34;&gt;Test Kubernetes Installation&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#finally-security&#34;&gt;Finally security&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#summary&#34;&gt;Summary&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;securing-kubernetes-implementing-pod-security-admission-psa-with-pod-security-standards-pss&#34;&gt;Securing Kubernetes: Implementing Pod Security Admission (PSA) with Pod Security Standards (PSS)&lt;/h2&gt;
+&lt;hr&gt;
+&lt;p&gt;In &lt;strong&gt;Kubernetes version 1.31&lt;/strong&gt;, managing pod security is achieved through the implementation of &lt;strong&gt;Pod Security Admission (PSA)&lt;/strong&gt; and adherence to &lt;strong&gt;Pod Security Standards (PSS)&lt;/strong&gt;. These mechanisms ensure that pods comply with security best practices, enhancing the overall security posture of your cluster.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
